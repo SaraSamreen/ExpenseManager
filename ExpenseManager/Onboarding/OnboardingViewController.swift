@@ -57,6 +57,7 @@ class OnboardingViewController: UIViewController {
     @IBAction func nextBtnClicked(_ sender: UIButton)
     {
         if currentPage == slides.count - 1{
+            UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
             let controller = storyboard?
                 .instantiateViewController(withIdentifier: "SignupNC") as! UINavigationController
             controller.modalPresentationStyle = .fullScreen

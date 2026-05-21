@@ -21,6 +21,4 @@ class OnboardingCollectionViewCell: UICollectionViewCell {
         slideTitlelbl.text = slide.title
         slideDescriptionlbl.text = slide.description
     }
-    
-    
 }
