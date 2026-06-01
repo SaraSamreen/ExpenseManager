@@ -53,13 +53,13 @@ class OnboardingViewController: UIViewController {
         ]
     }
     
-    
+    // MARK: - IBAction
     @IBAction func nextBtnClicked(_ sender: UIButton)
     {
         if currentPage == slides.count - 1{
             UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
             let controller = storyboard?
-                .instantiateViewController(withIdentifier: "SignupNC") as! UINavigationController
+                .instantiateViewController(withIdentifier: "SignupViewController") as! SignupViewController
             controller.modalPresentationStyle = .fullScreen
             controller.modalTransitionStyle = .flipHorizontal
             present(controller,animated: true,
@@ -96,4 +96,3 @@ extension OnboardingViewController: UICollectionViewDelegate, UICollectionViewDa
                           / width)
     }
 }
-

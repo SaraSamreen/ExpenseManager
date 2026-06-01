@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		04D078612FCD94AE00B19281 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078602FCD94AE00B19281 /* FirebaseAuth */; };
+		04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078622FCD94AE00B19281 /* FirebaseFirestore */; };
+		04D078682FCD994E00B19281 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078672FCD994E00B19281 /* GoogleSignIn */; };
+		04D0786A2FCD994E00B19281 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078692FCD994E00B19281 /* GoogleSignInSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		0465CECA2FBED8BD00DFBD4E /* ExpenseManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ExpenseManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +43,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04D078612FCD94AE00B19281 /* FirebaseAuth in Frameworks */,
+				04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */,
+				04D078682FCD994E00B19281 /* GoogleSignIn in Frameworks */,
+				04D0786A2FCD994E00B19281 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +89,10 @@
 			);
 			name = ExpenseManager;
 			packageProductDependencies = (
+				04D078602FCD94AE00B19281 /* FirebaseAuth */,
+				04D078622FCD94AE00B19281 /* FirebaseFirestore */,
+				04D078672FCD994E00B19281 /* GoogleSignIn */,
+				04D078692FCD994E00B19281 /* GoogleSignInSwift */,
 			);
 			productName = ExpenseManager;
 			productReference = 0465CECA2FBED8BD00DFBD4E /* ExpenseManager.app */;
@@ -107,6 +122,10 @@
 			);
 			mainGroup = 0465CEC12FBED8BD00DFBD4E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				04D0785F2FCD94AE00B19281 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0465CECB2FBED8BD00DFBD4E /* Products */;
 			projectDirPath = "";
@@ -341,6 +360,48 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		04D0785F2FCD94AE00B19281 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
+		04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.1.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		04D078602FCD94AE00B19281 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04D0785F2FCD94AE00B19281 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		04D078622FCD94AE00B19281 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04D0785F2FCD94AE00B19281 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		04D078672FCD994E00B19281 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		04D078692FCD994E00B19281 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0465CEC22FBED8BD00DFBD4E /* Project object */;
 }
