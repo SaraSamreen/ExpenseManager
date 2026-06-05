@@ -93,11 +93,11 @@ class LoginViewController: UIViewController {
     // MARK: - Helpers
     func navigateToHome() {
         DispatchQueue.main.async {
-            let controller = self.storyboard?
-                .instantiateViewController(withIdentifier: "HomeViewController")
-                as! HomeViewController
-            controller.modalPresentationStyle = .fullScreen
-            self.present(controller, animated: true)
+            let tabBar = self.storyboard?
+                .instantiateViewController(withIdentifier: "MainTabBarController")
+                as! UITabBarController
+            tabBar.modalPresentationStyle = .fullScreen
+            self.present(tabBar, animated: true)
         }
     }
     

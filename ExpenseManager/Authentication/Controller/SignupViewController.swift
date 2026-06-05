@@ -43,13 +43,16 @@ class SignupViewController: UIViewController {
        }
     
     func navigateToHome() {
-        let controller = storyboard?
-            .instantiateViewController(withIdentifier: "HomeViewController")
-            as! HomeViewController
-        controller.modalPresentationStyle = .fullScreen
-        present(controller, animated: true)
+        DispatchQueue.main.async {
+            let tabBar = self.storyboard?
+                .instantiateViewController(withIdentifier: "MainTabBarController")
+                as! UITabBarController
+            tabBar.modalPresentationStyle = .fullScreen
+            self.present(tabBar, animated: true)
+        }
     }
-        func showAlert(message: String) {
+
+    func showAlert(message: String) {
             let alert = UIAlertController(title: "Error",
                                          message: message,
                                          preferredStyle: .alert)

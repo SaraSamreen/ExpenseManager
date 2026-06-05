@@ -5,6 +5,7 @@
 //  Created by Mac on 21/05/2026.
 //
 
+import CoreData
 import UIKit
 import Firebase
 import GoogleSignIn
@@ -12,10 +13,9 @@ import GoogleSignIn
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
+        CoreDataManager.shared.setupDefaultCategories()
         
         guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
                 let config = GIDConfiguration(clientID: clientID)
@@ -37,6 +37,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
+    
+    // MARK: - Core Data
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "ExpenseManager")
+        container.loadPersistentStores { _, error in
+            if let error = error {
+                fatalError("Core Data error: \(error)")
+            }
+        }
+        return container
+    }()
 
-
+    func saveContext() {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                fatalError("Save error: \(error)")
+            }
+        }
+    }
 }

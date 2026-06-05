@@ -31,7 +31,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "OnboardingViewController")
         } else if Auth.auth().currentUser != nil {
             // Already logged in — go to home
-            window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "HomeViewController")
+            window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "MainTabBarController")
         } else {
             // Seen onboarding but not logged in — show login
             window?.rootViewController = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
