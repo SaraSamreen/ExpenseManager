@@ -10,7 +10,7 @@ class TransactionsViewController: UIViewController {
     var allExpenses: [Expense] = []
     var expenses: [Expense] = []
     var selectedType: String = "All"
-    var selectedMonth: Int = 0
+    var selectedDate: Date? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +38,7 @@ class TransactionsViewController: UIViewController {
         view.addSubview(typeBtn)
         
         // Month button
-        monthBtn.setTitle("Month ▾", for: .normal)
+        monthBtn.setTitle("Date ▾", for: .normal)
         monthBtn.setTitleColor(.label, for: .normal)
         monthBtn.backgroundColor = UIColor(white: 0.93, alpha: 1)
         monthBtn.layer.cornerRadius = 8
@@ -53,13 +53,13 @@ class TransactionsViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             // Type button
-            typeBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            typeBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
             typeBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             typeBtn.widthAnchor.constraint(equalToConstant: 100),
             typeBtn.heightAnchor.constraint(equalToConstant: 36),
             
             // Month button
-            monthBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            monthBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 25),
             monthBtn.leadingAnchor.constraint(equalTo: typeBtn.trailingAnchor, constant: 12),
             monthBtn.widthAnchor.constraint(equalToConstant: 100),
             monthBtn.heightAnchor.constraint(equalToConstant: 36),
@@ -84,10 +84,9 @@ class TransactionsViewController: UIViewController {
             filtered = filtered.filter { $0.type == selectedType.lowercased() }
         }
         
-        if selectedMonth != 0 {
+        if let selectedDate = selectedDate {
             filtered = filtered.filter {
-                let month = Calendar.current.component(.month, from: $0.date ?? Date())
-                return month == selectedMonth
+                Calendar.current.isDate($0.date ?? Date(), inSameDayAs: selectedDate)
             }
         }
         
@@ -109,45 +108,120 @@ class TransactionsViewController: UIViewController {
     }
     
     @objc func monthBtnTapped() {
-        let alert = UIAlertController(title: "Filter by Month", message: nil, preferredStyle: .actionSheet)
-        let months = ["All", "January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"]
-        months.enumerated().forEach { index, month in
-            alert.addAction(UIAlertAction(title: month, style: .default) { [weak self] _ in
-                self?.selectedMonth = index
-                self?.monthBtn.setTitle("\(month) ▾", for: .normal)
-                self?.applyFilter()
-            })
-        }
+        let alert = UIAlertController(title: "", message: "\n\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .inline
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        alert.view.addSubview(datePicker)
+        
+        NSLayoutConstraint.activate([
+            datePicker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 8),
+            datePicker.leadingAnchor.constraint(equalTo: alert.view.leadingAnchor, constant: 8),
+            datePicker.trailingAnchor.constraint(equalTo: alert.view.trailingAnchor, constant: -8),
+        ])
+        
+        alert.addAction(UIAlertAction(title: "Show", style: .default) { [weak self] _ in
+            let selected = datePicker.date
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMM yyyy"
+            self?.monthBtn.setTitle("\(formatter.string(from: selected)) ▾", for: .normal)
+            self?.selectedDate = selected
+            self?.applyFilter()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Show All", style: .default) { [weak self] _ in
+            self?.selectedDate = nil
+            self?.monthBtn.setTitle("Month ▾", for: .normal)
+            self?.applyFilter()
+        })
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
     }
 }
+    // MARK: - TableView
+    extension TransactionsViewController: UITableViewDelegate, UITableViewDataSource {
+        
+        func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+            
+            // Delete Action
+            let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [weak self] _, _, completion in
+                guard let self = self else { return }
+                
+                let alert = UIAlertController(title: "Delete", message: "Are you sure you want to delete this transaction?", preferredStyle: .alert)
+                
+                alert.addAction(UIAlertAction(title: "Delete", style: .destructive) { _ in
+                    let expense = self.expenses[indexPath.row]
+                    CoreDataManager.shared.deleteExpense(expense)
+                    self.loadData()
+                    completion(true)
+                })
+                
+                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
+                    completion(false)
+                })
+                
+                self.present(alert, animated: true)
+            }
+            deleteAction.image = UIImage(systemName: "trash")
+            deleteAction.backgroundColor = .systemBlue
+            
+            
+            // Edit Action
+            let editAction = UIContextualAction(style: .normal, title: "Edit") { [weak self] _, _, completion in
+                guard let self = self else { return }
+                let expense = self.expenses[indexPath.row]
+                let detailVC = TransactionDetailViewController()
+                detailVC.expense = expense
+                detailVC.onDismiss = { [weak self] in
+                    self?.loadData()
+                }
+                self.navigationController?.pushViewController(detailVC, animated: true)
+                completion(true)
+            }
+            editAction.image = UIImage(systemName: "pencil")
+            editAction.backgroundColor = .systemBlue
+            
+            return UISwipeActionsConfiguration(actions: [deleteAction, editAction])
+        }
+        
+        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            return expenses.count
+        }
+        
+        func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+            return 70
+        }
+        
+        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            tableView.deselectRow(at: indexPath, animated: true)
+            
+            let expense = expenses[indexPath.row]
+            let detailVC = TransactionDetailViewController()
+            detailVC.expense = expense
+            detailVC.onDismiss = { [weak self] in
+                self?.loadData()
+            }
+            navigationController?.pushViewController(detailVC, animated: true)
+        }
+        
+        
+        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath) as! TransactionCell
+            let expense = expenses[indexPath.row]
+            
+            cell.titleLabel.text = expense.title
+            
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMM yyyy"
+            cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
+            
+            let prefix = expense.type == "income" ? "+" : "-"
+            cell.amountLabel.text = "\(prefix)Rs \(String(format: "%.2f", expense.amount))"
+            cell.amountLabel.textColor = .label
+            return cell
+        }
+    }
 
-// MARK: - TableView
-extension TransactionsViewController: UITableViewDelegate, UITableViewDataSource {
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return expenses.count
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath) as! TransactionCell
-        let expense = expenses[indexPath.row]
-        
-        cell.titleLabel.text = expense.title
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMM yyyy"
-        cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
-        
-        let prefix = expense.type == "income" ? "+" : "-"
-        cell.amountLabel.text = "\(prefix)Rs \(String(format: "%.2f", expense.amount))"
-        cell.amountLabel.textColor = .label
-        return cell
-    }
-}

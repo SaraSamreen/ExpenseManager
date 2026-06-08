@@ -30,6 +30,7 @@ class DashboardViewController: UIViewController {
         collectionView.dataSource = self
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
     }
     
     override func viewWillAppear(_ animated: Bool) {

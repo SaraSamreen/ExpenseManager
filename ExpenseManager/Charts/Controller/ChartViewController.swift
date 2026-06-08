@@ -10,7 +10,7 @@ class ChartViewController: UIViewController {
     
     @IBOutlet weak var analyticslbl: UILabel!
     
-    var selectedMonth: Int = 0
+    var selectedDate: Date? = nil
     var monthBtn = UIButton(type: .system)
     var chartView = UIView()
     var legendStack = UIStackView()
@@ -30,7 +30,7 @@ class ChartViewController: UIViewController {
     }
     
     func setupMonthButton() {
-        monthBtn.setTitle("Month ▾", for: .normal)
+        monthBtn.setTitle("Select Date ▾", for: .normal)
         monthBtn.setTitleColor(.label, for: .normal)
         monthBtn.backgroundColor = UIColor(white: 0.93, alpha: 1)
         monthBtn.layer.cornerRadius = 8
@@ -75,9 +75,9 @@ class ChartViewController: UIViewController {
         let allExpenses = CoreDataManager.shared.fetchExpenses()
         
         var filtered = allExpenses.filter { $0.type == "expense" }
-        if selectedMonth != 0 {
+        if let selectedDate = selectedDate {
             filtered = filtered.filter {
-                Calendar.current.component(.month, from: $0.date ?? Date()) == selectedMonth
+                Calendar.current.isDate($0.date ?? Date(), inSameDayAs: selectedDate)
             }
         }
         
@@ -118,9 +118,13 @@ class ChartViewController: UIViewController {
         chartView.subviews.forEach { $0.removeFromSuperview() }
         legendStack.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        let colors: [UIColor] = [.systemBlue, UIColor.systemBlue.withAlphaComponent(0.6),
-                                  UIColor.systemBlue.withAlphaComponent(0.3),
-                                  .systemIndigo, .systemPurple]
+        let colors: [UIColor] = [
+            UIColor(hex: "#E63946"),
+            UIColor(hex: "#2196F3"),
+            UIColor(hex: "#FF9800"),
+            UIColor(hex: "#4CAF50"),
+            UIColor(hex: "#9C27B0")
+        ]
         
         let center = CGPoint(x: chartView.bounds.width / 2, y: chartView.bounds.height / 2)
         let radius: CGFloat = 90
@@ -209,17 +213,47 @@ class ChartViewController: UIViewController {
     }
     
     @objc func monthBtnTapped() {
-        let alert = UIAlertController(title: "Filter by Month", message: nil, preferredStyle: .actionSheet)
-        let months = ["All", "January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"]
-        months.enumerated().forEach { index, month in
-            alert.addAction(UIAlertAction(title: month, style: .default) { [weak self] _ in
-                self?.selectedMonth = index
-                self?.monthBtn.setTitle("\(month) ▾", for: .normal)
-                self?.loadChart()
-            })
-        }
+        let alert = UIAlertController(title: "", message: "\n\n\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        
+        let datePicker = UIDatePicker()
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .inline
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        alert.view.addSubview(datePicker)
+        
+        NSLayoutConstraint.activate([
+            datePicker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 8),
+            datePicker.leadingAnchor.constraint(equalTo: alert.view.leadingAnchor, constant: 8),
+            datePicker.trailingAnchor.constraint(equalTo: alert.view.trailingAnchor, constant: -8),
+        ])
+        
+        alert.addAction(UIAlertAction(title: "Show", style: .default) { [weak self] _ in
+            let selected = datePicker.date
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd MMM yyyy"
+            self?.monthBtn.setTitle("\(formatter.string(from: selected)) ▾", for: .normal)
+            self?.selectedDate = selected
+            self?.loadChart()
+        })
+        
+        alert.addAction(UIAlertAction(title: "Show All", style: .default) { [weak self] _ in
+            self?.selectedDate = nil
+            self?.monthBtn.setTitle("Select Date ▾", for: .normal)
+            self?.loadChart()
+        })
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
+    }
+}
+extension UIColor {
+    convenience init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r = CGFloat((int >> 16) & 0xFF) / 255
+        let g = CGFloat((int >> 8) & 0xFF) / 255
+        let b = CGFloat(int & 0xFF) / 255
+        self.init(red: r, green: g, blue: b, alpha: 1)
     }
 }

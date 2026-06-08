@@ -16,13 +16,14 @@ class CoreDataManager {
     }()
     
     // MARK: - Save Expense
-    func saveExpense(title: String, amount: Double, date: Date, type: String, category: String) {
+    func saveExpense(title: String, amount: Double, date: Date, type: String, category: String, image: UIImage? = nil) {
         let expense = Expense(context: context)
         expense.title = title
         expense.amount = amount
         expense.date = date
         expense.type = type
         expense.category = category
+        expense.image = image?.jpegData(compressionQuality: 0.7)
         
         do {
             try context.save()
@@ -82,6 +83,25 @@ class CoreDataManager {
         }
         if fetchCategories(type: "expense").isEmpty {
             expenseDefaults.forEach { saveCategory(name: $0, type: "expense") }
+        }
+    }
+    
+    // MARK: - Delete Expense
+    func deleteExpense(_ expense: Expense) {
+        context.delete(expense)
+        do {
+            try context.save()
+        } catch {
+            print("Error deleting: \(error)")
+        }
+    }
+
+    // MARK: - Save Context
+    func saveContext() {
+        do {
+            try context.save()
+        } catch {
+            print("Error saving context: \(error)")
         }
     }
 }
