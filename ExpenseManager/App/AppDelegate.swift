@@ -9,6 +9,7 @@ import CoreData
 import UIKit
 import Firebase
 import GoogleSignIn
+import IQKeyboardManagerSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,6 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
                 let config = GIDConfiguration(clientID: clientID)
                 GIDSignIn.sharedInstance.configuration = config
+        
+        IQKeyboardManager.shared.isEnabled = true
+        IQKeyboardManager.shared.resignOnTouchOutside = true
 
         return true
     }

@@ -104,4 +104,59 @@ class CoreDataManager {
             print("Error saving context: \(error)")
         }
     }
+    
+    // MARK: - Save Goal
+    func saveGoal(title: String, amount: Double, deadline: Date, contributionType: String, icon: String) {
+        let goal = Goal(context: context)
+        goal.title = title
+        goal.amount = amount
+        goal.deadline = deadline
+        goal.contributionType = contributionType
+        goal.createdAt = Date()
+        goal.icon = icon
+        
+        do {
+            try context.save()
+        } catch {
+            print("Error saving goal: \(error)")
+        }
+    }
+    
+    func iconName(for title: String) -> String {
+        let t = title.lowercased()
+        if t.contains("bike") || t.contains("motor") || t.contains("car") { return "car.fill" }
+        if t.contains("phone") || t.contains("iphone") || t.contains("mobile") { return "iphone" }
+        if t.contains("house") || t.contains("home") { return "house.fill" }
+        if t.contains("laptop") || t.contains("mac") || t.contains("computer") { return "laptopcomputer" }
+        if t.contains("travel") || t.contains("trip") || t.contains("vacation") { return "airplane" }
+        if t.contains("food") || t.contains("eat") { return "fork.knife" }
+        if t.contains("education") || t.contains("study") || t.contains("school") { return "graduationcap.fill" }
+        if t.contains("health") || t.contains("gym") || t.contains("fitness") { return "heart.fill" }
+        if t.contains("shop") || t.contains("buy") { return "bag.fill" }
+        return "star.fill"
+    }
+
+    // MARK: - Fetch Goals
+    func fetchGoals() -> [Goal] {
+        let request: NSFetchRequest<Goal> = Goal.fetchRequest()
+        let sort = NSSortDescriptor(key: "createdAt", ascending: false)
+        request.sortDescriptors = [sort]
+        
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("Error fetching goals: \(error)")
+            return []
+        }
+    }
+
+    // MARK: - Delete Goal
+    func deleteGoal(_ goal: Goal) {
+        context.delete(goal)
+        do {
+            try context.save()
+        } catch {
+            print("Error deleting goal: \(error)")
+        }
+    }
 }

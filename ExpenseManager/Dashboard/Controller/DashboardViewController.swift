@@ -18,10 +18,10 @@ class DashboardViewController: UIViewController {
     var totalIncome: Double = 0
     var totalExpense: Double = 0
     var selectedCardIndex: Int? = nil
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.minimumInteritemSpacing = 20
             layout.minimumLineSpacing = 20
@@ -53,8 +53,26 @@ class DashboardViewController: UIViewController {
         
         collectionView.reloadData()
         tableView.reloadData()
+        showEmptyStateIfNeeded()
     }
+    func showEmptyStateIfNeeded() {
+        if expenses.isEmpty {
+            let label = UILabel()
+            label.text = "No entries found"
+            label.textAlignment = .center
+            label.textColor = .gray
+            label.font = UIFont.systemFont(ofSize: 16)
+            label.translatesAutoresizingMaskIntoConstraints = false
+            tableView.backgroundView = label
+            NSLayoutConstraint.activate([
+                label.centerXAnchor.constraint(equalTo: tableView.centerXAnchor),
+                label.centerYAnchor.constraint(equalTo: tableView.centerYAnchor)
+            ])
+        } else {
+            tableView.backgroundView = nil
+        }
     }
+}
 
 // MARK: - CollectionView
 extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -118,9 +136,13 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
         formatter.dateFormat = "dd MMM yyyy"
         cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
         
-        let prefix = expense.type == "income" ? "+" : "-"
-        cell.amountLabel.text = "\(prefix)Rs \(String(format: "%.2f", expense.amount))"
-        cell.amountLabel.textColor = .label
+        cell.amountLabel.text = "Rs \(String(format: "%.2f", expense.amount))"
+
+        if expense.type == "income" {
+            cell.amountLabel.textColor = .systemGreen
+        } else {
+            cell.amountLabel.textColor = .systemRed
+        }
         
         return cell
     }

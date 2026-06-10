@@ -41,7 +41,7 @@ class ChartViewController: UIViewController {
         view.addSubview(monthBtn)
         
         NSLayoutConstraint.activate([
-            monthBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            monthBtn.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 80),
             monthBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             monthBtn.widthAnchor.constraint(equalToConstant: 120),
             monthBtn.heightAnchor.constraint(equalToConstant: 36)

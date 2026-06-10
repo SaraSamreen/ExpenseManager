@@ -11,6 +11,7 @@
 		04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078622FCD94AE00B19281 /* FirebaseFirestore */; };
 		04D078682FCD994E00B19281 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078672FCD994E00B19281 /* GoogleSignIn */; };
 		04D0786A2FCD994E00B19281 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078692FCD994E00B19281 /* GoogleSignInSwift */; };
+		04E774402FD95AB4002F8EF9 /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 04E7743F2FD95AB4002F8EF9 /* IQKeyboardManagerSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04E774402FD95AB4002F8EF9 /* IQKeyboardManagerSwift in Frameworks */,
 				04D078612FCD94AE00B19281 /* FirebaseAuth in Frameworks */,
 				04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */,
 				04D078682FCD994E00B19281 /* GoogleSignIn in Frameworks */,
@@ -93,6 +95,7 @@
 				04D078622FCD94AE00B19281 /* FirebaseFirestore */,
 				04D078672FCD994E00B19281 /* GoogleSignIn */,
 				04D078692FCD994E00B19281 /* GoogleSignInSwift */,
+				04E7743F2FD95AB4002F8EF9 /* IQKeyboardManagerSwift */,
 			);
 			productName = ExpenseManager;
 			productReference = 0465CECA2FBED8BD00DFBD4E /* ExpenseManager.app */;
@@ -125,6 +128,7 @@
 			packageReferences = (
 				04D0785F2FCD94AE00B19281 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				04E7743E2FD95AB4002F8EF9 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0465CECB2FBED8BD00DFBD4E /* Products */;
@@ -378,6 +382,14 @@
 				minimumVersion = 9.1.0;
 			};
 		};
+		04E7743E2FD95AB4002F8EF9 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -400,6 +412,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
 			productName = GoogleSignInSwift;
+		};
+		04E7743F2FD95AB4002F8EF9 /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 04E7743E2FD95AB4002F8EF9 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
