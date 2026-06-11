@@ -13,6 +13,7 @@ class AllGoalsViewController: UIViewController {
     
     var goals: [Goal] = []
     var currentSavings: Double = 0
+    var monthlySavings: Double = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +21,9 @@ class AllGoalsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        
+        tableView.backgroundColor = UIColor.systemGray6
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: UIImage(systemName: "plus"),
@@ -48,6 +52,17 @@ class AllGoalsViewController: UIViewController {
         let totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
         let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
         currentSavings = max(0, totalIncome - totalExpense)
+        
+        // This month's savings rate
+        let calendar = Calendar.current
+        let now = Date()
+        let thisMonthExpenses = allExpenses.filter {
+            calendar.isDate($0.date ?? now, equalTo: now, toGranularity: .month)
+        }
+        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
+        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
+        monthlySavings = max(0, monthlyIncome - monthlyExpense)
+        
         goals = CoreDataManager.shared.fetchGoals()
         tableView.reloadData()
         showEmptyStateIfNeeded()
@@ -87,12 +102,12 @@ extension AllGoalsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
+        return 140
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GoalCell", for: indexPath) as! GoalCell
-        cell.configure(goal: goals[indexPath.row], currentSavings: currentSavings)
+        cell.configure(goal: goals[indexPath.row], currentSavings: currentSavings, monthlySavings: monthlySavings)
         return cell
     }
     

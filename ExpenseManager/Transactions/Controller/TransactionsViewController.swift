@@ -18,6 +18,9 @@ class TransactionsViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .none
         setupButtons()
+        
+        tableView.backgroundColor = UIColor.systemGray6
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -211,7 +214,7 @@ class TransactionsViewController: UIViewController {
         }
         
         func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            return 70
+            return 90
         }
         
         func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

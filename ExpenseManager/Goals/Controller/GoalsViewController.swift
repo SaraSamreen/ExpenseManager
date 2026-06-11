@@ -7,19 +7,32 @@
 
 import UIKit
 
+
 class GoalsViewController: UIViewController {
     
+    @IBOutlet weak var savingsCardView: UIView!
     @IBOutlet weak var savingsAmountLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     
     var goals: [Goal] = []
     var currentSavings: Double = 0
+    var monthlySavings: Double = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        
+        tableView.backgroundColor = UIColor.systemGray6
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        
+        savingsCardView.layer.cornerRadius = 20
+        savingsCardView.layer.shadowColor = UIColor.black.cgColor
+        savingsCardView.layer.shadowOpacity = 0.08
+        savingsCardView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        savingsCardView.layer.shadowRadius = 8
+        savingsCardView.layer.masksToBounds = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -50,11 +63,21 @@ class GoalsViewController: UIViewController {
         let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
         currentSavings = max(0, totalIncome - totalExpense)
         
-        savingsAmountLabel.text = "Rs \(String(format: "%.2f", currentSavings))"
+        // This month's savings rate
+        let calendar = Calendar.current
+        let now = Date()
+        let thisMonthExpenses = allExpenses.filter {
+            calendar.isDate($0.date ?? now, equalTo: now, toGranularity: .month)
+        }
+        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
+        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
+        monthlySavings = max(0, monthlyIncome - monthlyExpense)
         
+        savingsAmountLabel.text = "Rs \(String(format: "%.2f", currentSavings))"
         goals = Array(CoreDataManager.shared.fetchGoals().prefix(3))
         tableView.reloadData()
     }
+    
     
     @IBAction func addGoalTapped(_ sender: UIButton) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
@@ -83,12 +106,12 @@ extension GoalsViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
+        return 140
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "GoalCell", for: indexPath) as! GoalCell
-        cell.configure(goal: goals[indexPath.row], currentSavings: currentSavings)
+        cell.configure(goal: goals[indexPath.row], currentSavings: currentSavings, monthlySavings: monthlySavings)
         return cell
     }
 }

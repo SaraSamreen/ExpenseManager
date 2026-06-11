@@ -11,13 +11,19 @@ class ExpenseCardCell: UICollectionViewCell {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
     
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        contentView.layer.cornerRadius = 20
+        contentView.layer.masksToBounds = true
+    }
+    
     func configure(isSelected: Bool) {
-        backgroundColor = isSelected ? .systemBlue : .white
-        layer.cornerRadius = 12
+        contentView.backgroundColor = isSelected ? .systemBlue : .white
+        layer.cornerRadius = 20
         layer.masksToBounds = false
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = isSelected ? 0.3 : 0.15
-        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowOpacity = isSelected ? 0.3 : 0.08
+        layer.shadowOffset = CGSize(width: 0, height: 2)
         layer.shadowRadius = 8
         titleLabel.textColor = isSelected ? .white : .label
         amountLabel.textColor = isSelected ? .white : .label

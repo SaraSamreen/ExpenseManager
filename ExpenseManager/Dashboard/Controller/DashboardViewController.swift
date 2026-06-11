@@ -25,7 +25,13 @@ class DashboardViewController: UIViewController {
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.minimumInteritemSpacing = 20
             layout.minimumLineSpacing = 20
+            
+            selectedCardIndex = 0
         }
+        
+        tableView.backgroundColor = UIColor.systemGray6
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
+        tableView.separatorStyle = .none
         collectionView.delegate = self
         collectionView.dataSource = self
         tableView.delegate = self
@@ -123,7 +129,7 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
+        return 90
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
