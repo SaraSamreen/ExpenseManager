@@ -107,9 +107,9 @@ class GoalCell: UITableViewCell {
         titleLabel.text = goal.title
 
         // Amount
-        let symbol = CoreDataManager.shared.currencySymbol()
+        let symbol = CurrencyManager.shared.currencySymbol()
         let displayAmount = min(currentSavings, progress.expectedByNow)
-        amountLabel.text = "\(symbol) \(String(format: "%.0f", displayAmount)) / \(symbol) \(String(format: "%.0f", goal.amount))"
+        amountLabel.text = "\(symbol) \(String(format: "%.0f", CurrencyManager.shared.convertAmount(displayAmount))) / \(symbol) \(String(format: "%.0f", CurrencyManager.shared.convertAmount(goal.amount)))"
 
         // Contribution
         if progress.status == .achieved {
@@ -117,7 +117,7 @@ class GoalCell: UITableViewCell {
             contributionLabel.text = ""
         } else {
             contributionTitleLabel.isHidden = false
-            contributionLabel.text = "\(symbol) \(String(format: "%.0f", progress.requiredPerPeriod)) / \(progress.periodLabel)"
+            contributionLabel.text = "\(symbol) \(String(format: "%.0f", CurrencyManager.shared.convertAmount(progress.requiredPerPeriod))) / \(progress.periodLabel)"
         }
 
         // Time label

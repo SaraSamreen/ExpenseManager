@@ -58,7 +58,7 @@ class CoreDataManager {
             print("Error saving category: \(error)")
         }
     }
-
+    
     // MARK: - Fetch Categories
     func fetchCategories(type: String) -> [String] {
         let request: NSFetchRequest<ExpenseCategory> = ExpenseCategory.fetchRequest()
@@ -95,7 +95,7 @@ class CoreDataManager {
             print("Error deleting: \(error)")
         }
     }
-
+    
     // MARK: - Save Context
     func saveContext() {
         do {
@@ -135,7 +135,7 @@ class CoreDataManager {
         if t.contains("shop") || t.contains("buy") { return "bag.fill" }
         return "star.fill"
     }
-
+    
     // MARK: - Fetch Goals
     func fetchGoals() -> [Goal] {
         let request: NSFetchRequest<Goal> = Goal.fetchRequest()
@@ -149,7 +149,7 @@ class CoreDataManager {
             return []
         }
     }
-
+    
     // MARK: - Delete Goal
     func deleteGoal(_ goal: Goal) {
         context.delete(goal)
@@ -157,19 +157,6 @@ class CoreDataManager {
             try context.save()
         } catch {
             print("Error deleting goal: \(error)")
-        }
-    }
-    // MARK: - Currency Symbol
-    func currencySymbol() -> String {
-        let code = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD"
-        switch code {
-        case "USD": return "$"
-        case "EUR": return "€"
-        case "PKR": return "Rs"
-        case "INR": return "₹"
-        case "AED": return "AED"
-        case "GBP": return "£"
-        default: return "$"
         }
     }
 }

@@ -264,7 +264,7 @@ class TransactionsViewController: UIViewController {
             formatter.dateFormat = "dd MMM yyyy"
             cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
             
-            cell.amountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", expense.amount))"
+            cell.amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(expense.amount)))"
 
             if expense.type == "income" {
                 cell.amountLabel.textColor = .systemGreen

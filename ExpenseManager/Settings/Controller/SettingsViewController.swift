@@ -62,7 +62,6 @@ class SettingsViewController: UIViewController {
             ("PKR", "Pakistani Rupee"),
             ("INR", "Indian Rupee"),
             ("AED", "UAE Dirham"),
-            ("GBP", "British Pound"),
         ]
         
         let alert = UIAlertController(title: "Select Currency", message: nil, preferredStyle: .actionSheet)

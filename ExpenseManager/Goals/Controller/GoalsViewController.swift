@@ -73,10 +73,11 @@ class GoalsViewController: UIViewController {
         let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
         monthlySavings = max(0, monthlyIncome - monthlyExpense)
         
-        savingsAmountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", currentSavings))"
+        savingsAmountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(currentSavings)))"
         goals = Array(CoreDataManager.shared.fetchGoals().prefix(3))
         tableView.reloadData()
     }
+    
     
     
     @IBAction func addGoalTapped(_ sender: UIButton) {

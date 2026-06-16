@@ -271,7 +271,7 @@ class ChartViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 14)
         
         let amountLabel = UILabel()
-        amountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.0f", amount))"
+        amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.0f", CurrencyManager.shared.convertAmount(amount)))"
         amountLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         amountLabel.textAlignment = .right
         

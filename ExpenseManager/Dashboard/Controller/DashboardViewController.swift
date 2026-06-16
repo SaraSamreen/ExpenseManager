@@ -108,7 +108,7 @@ extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpenseCardCell", for: indexPath) as! ExpenseCardCell
         cell.titleLabel.text = cards[indexPath.row]
-        cell.amountLabel.text = indexPath.row == 0 ? "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", totalIncome))" : "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", totalExpense))"
+        cell.amountLabel.text = indexPath.row == 0 ? "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(totalIncome)))" : "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(totalExpense)))"
         cell.configure(isSelected: selectedCardIndex == indexPath.row)
         return cell
     }
@@ -160,7 +160,7 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
         formatter.dateFormat = "dd MMM yyyy"
         cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
         
-        cell.amountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", expense.amount))"
+        cell.amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(expense.amount)))"
 
         if expense.type == "income" {
             cell.amountLabel.textColor = .systemGreen
