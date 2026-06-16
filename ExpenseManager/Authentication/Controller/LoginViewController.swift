@@ -45,12 +45,29 @@ class LoginViewController: UIViewController {
     
     // MARK: - IBActions
     @IBAction func loginBtnClicked(_ sender: UIButton) {
-        guard let email = emailTextField.text, !email.isEmpty,
-              let password = passwordTextField.text, !password.isEmpty else {
-            showAlert(message: "Please fill in all fields")
+        guard let email = emailTextField.text, !email.isEmpty else {
+            showAlert(message: "Please enter your email")
             return
         }
+        
+        guard email.contains("@") && email.contains(".") else {
+            showAlert(message: "Please enter a valid email address")
+            return
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            showAlert(message: "Please enter your password")
+            return
+        }
+        
+        guard password.count >= 6 else {
+            showAlert(message: "Password must be at least 6 characters")
+            return
+        }
+        
+        showLoader()
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            self.hideLoader()
             if let error = error {
                 self.showAlert(message: error.localizedDescription)
                 return
@@ -60,18 +77,24 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func googleBtnClicked(_ sender: UIButton) {
+        showLoader()
         GIDSignIn.sharedInstance.signIn(withPresenting: self) { result, error in
             if let error = error {
+                self.hideLoader()
                 self.showAlert(message: error.localizedDescription)
                 return
             }
             guard let user = result?.user,
-                  let idToken = user.idToken?.tokenString else { return }
+                  let idToken = user.idToken?.tokenString else {
+                self.hideLoader()
+                return
+            }
             let credential = GoogleAuthProvider.credential(
                 withIDToken: idToken,
                 accessToken: user.accessToken.tokenString
             )
             Auth.auth().signIn(with: credential) { result, error in
+                self.hideLoader()
                 if let error = error {
                     self.showAlert(message: error.localizedDescription)
                     return
@@ -82,6 +105,7 @@ class LoginViewController: UIViewController {
     }
     
     @IBAction func appleBtnClicked(_ sender: UIButton) {
+        showLoader()
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
         let controller = ASAuthorizationController(authorizationRequests: [request])
@@ -91,6 +115,20 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: - Helpers
+    func showLoader() {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.tag = 999
+        spinner.center = view.center
+        spinner.startAnimating()
+        view.addSubview(spinner)
+        view.isUserInteractionEnabled = false
+    }
+
+    func hideLoader() {
+        view.viewWithTag(999)?.removeFromSuperview()
+        view.isUserInteractionEnabled = true
+    }
+    
     func navigateToHome() {
         DispatchQueue.main.async {
             let tabBar = self.storyboard?
@@ -132,6 +170,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
     
     func authorizationController(controller: ASAuthorizationController,
                                  didCompleteWithAuthorization authorization: ASAuthorization) {
+        hideLoader()
         if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
             guard let tokenData = appleIDCredential.identityToken,
                   let token = String(data: tokenData, encoding: .utf8) else { return }
@@ -153,6 +192,7 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
     
     func authorizationController(controller: ASAuthorizationController,
                                  didCompleteWithError error: Error) {
+        hideLoader()
         showAlert(message: error.localizedDescription)
     }
 }

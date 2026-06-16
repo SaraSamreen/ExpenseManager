@@ -13,14 +13,17 @@ class TransactionDetailViewController: UIViewController {
     var expense: Expense?
     var onDismiss: (() -> Void)?
     var selectedImage: UIImage? = nil
+    var selectedDate: Date = Date()
     
     // MARK: - UI Elements
+    let titleLabel = UILabel()
+    let amountLabel = UILabel()
+    let dateLabel = UILabel()
     let titleField = UITextField()
     let amountField = UITextField()
+    let dateField = UITextField()
     let saveBtn = UIButton(type: .system)
     let deleteBtn = UIButton(type: .system)
-    let datePickerLabel = UILabel()
-    let datePicker = UIDatePicker()
     let attachedImageView = UIImageView()
     let editImageBtn = UIButton(type: .system)
     let addImageLabel = UILabel()
@@ -37,27 +40,50 @@ class TransactionDetailViewController: UIViewController {
     // MARK: - Setup UI
     func setupUI() {
         
+        // Title Label
+        titleLabel.text = "Title"
+        titleLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = .secondaryLabel
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Amount Label
+        amountLabel.text = "Amount"
+        amountLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        amountLabel.textColor = .secondaryLabel
+        amountLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Date Label
+        dateLabel.text = "Date"
+        dateLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        dateLabel.textColor = .secondaryLabel
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        
         // Title Field
         titleField.borderStyle = .roundedRect
-        titleField.placeholder = "Title"
+        titleField.placeholder = "Enter title"
         titleField.translatesAutoresizingMaskIntoConstraints = false
         
         // Amount Field
         amountField.borderStyle = .roundedRect
-        amountField.placeholder = "Amount"
+        amountField.placeholder = "Enter amount"
         amountField.keyboardType = .decimalPad
         amountField.translatesAutoresizingMaskIntoConstraints = false
         
-        // Date Label
-        datePickerLabel.text = "Date"
-        datePickerLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        datePickerLabel.textColor = .secondaryLabel
-        datePickerLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        // Date Picker
-        datePicker.datePickerMode = .date
-        datePicker.preferredDatePickerStyle = .compact
-        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        // Date Field
+        dateField.borderStyle = .roundedRect
+        dateField.placeholder = "Select date"
+        dateField.inputView = UIView()
+        dateField.translatesAutoresizingMaskIntoConstraints = false
+        let calContainer = UIView(frame: CGRect(x: 0, y: 0, width: 44, height: 20))
+        let calIcon = UIImageView(image: UIImage(systemName: "calendar"))
+        calIcon.tintColor = .gray
+        calIcon.frame = CGRect(x: 4, y: 0, width: 24, height: 20)
+        calIcon.contentMode = .scaleAspectFit
+        calContainer.addSubview(calIcon)
+        dateField.rightView = calContainer
+        dateField.rightViewMode = .always
+        let tap = UITapGestureRecognizer(target: self, action: #selector(showDatePicker))
+        dateField.addGestureRecognizer(tap)
         
         // Attached Image View
         attachedImageView.contentMode = .scaleAspectFill
@@ -66,18 +92,22 @@ class TransactionDetailViewController: UIViewController {
         attachedImageView.backgroundColor = UIColor(white: 0.95, alpha: 1)
         attachedImageView.translatesAutoresizingMaskIntoConstraints = false
         
+        let imageTap = UITapGestureRecognizer(target: self, action: #selector(changeImageTapped))
+        attachedImageView.isUserInteractionEnabled = true
+        attachedImageView.addGestureRecognizer(imageTap)
+        
         // Add Image Placeholder Label
-        addImageLabel.text = "Tap camera to add receipt"
+        addImageLabel.text = "Tap to add receipt"
         addImageLabel.textColor = .secondaryLabel
         addImageLabel.font = UIFont.systemFont(ofSize: 14)
         addImageLabel.textAlignment = .center
         addImageLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        // Camera Button
-        editImageBtn.setImage(UIImage(systemName: "camera.fill"), for: .normal)
-        editImageBtn.tintColor = .white
-        editImageBtn.backgroundColor = .systemBlue
-        editImageBtn.layer.cornerRadius = 16
+        // Edit Image Button
+        editImageBtn.setTitle("Change Photo", for: .normal)
+        editImageBtn.setTitleColor(.systemBlue, for: .normal)
+        editImageBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        editImageBtn.backgroundColor = .clear
         editImageBtn.translatesAutoresizingMaskIntoConstraints = false
         editImageBtn.addTarget(self, action: #selector(changeImageTapped), for: .touchUpInside)
         
@@ -91,17 +121,19 @@ class TransactionDetailViewController: UIViewController {
         
         // Delete Button
         deleteBtn.setTitle("Delete", for: .normal)
-        deleteBtn.backgroundColor = .systemBlue
+        deleteBtn.backgroundColor = .systemRed
         deleteBtn.setTitleColor(.white, for: .normal)
         deleteBtn.layer.cornerRadius = 10
         deleteBtn.translatesAutoresizingMaskIntoConstraints = false
         deleteBtn.addTarget(self, action: #selector(deleteTapped), for: .touchUpInside)
         
         // Add Subviews
+        view.addSubview(titleLabel)
         view.addSubview(titleField)
+        view.addSubview(amountLabel)
         view.addSubview(amountField)
-        view.addSubview(datePickerLabel)
-        view.addSubview(datePicker)
+        view.addSubview(dateLabel)
+        view.addSubview(dateField)
         view.addSubview(attachedImageView)
         view.addSubview(addImageLabel)
         view.addSubview(editImageBtn)
@@ -111,49 +143,47 @@ class TransactionDetailViewController: UIViewController {
         // MARK: - Constraints
         NSLayoutConstraint.activate([
             
-            // Title Field
-            titleField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            
+            titleField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 6),
             titleField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             titleField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             titleField.heightAnchor.constraint(equalToConstant: 44),
             
-            // Amount Field
-            amountField.topAnchor.constraint(equalTo: titleField.bottomAnchor, constant: 16),
+            amountLabel.topAnchor.constraint(equalTo: titleField.bottomAnchor, constant: 16),
+            amountLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            
+            amountField.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 6),
             amountField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             amountField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             amountField.heightAnchor.constraint(equalToConstant: 44),
             
-            // Date Label
-            datePickerLabel.topAnchor.constraint(equalTo: amountField.bottomAnchor, constant: 16),
-            datePickerLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dateLabel.topAnchor.constraint(equalTo: amountField.bottomAnchor, constant: 16),
+            dateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             
-            // Date Picker
-            datePicker.centerYAnchor.constraint(equalTo: datePickerLabel.centerYAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            dateField.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 6),
+            dateField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            dateField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            dateField.heightAnchor.constraint(equalToConstant: 44),
             
-            // Attached Image View
-            attachedImageView.topAnchor.constraint(equalTo: datePickerLabel.bottomAnchor, constant: 30),
+            attachedImageView.topAnchor.constraint(equalTo: dateField.bottomAnchor, constant: 20),
             attachedImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             attachedImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             attachedImageView.heightAnchor.constraint(equalToConstant: 180),
             
-            // Placeholder Label
             addImageLabel.centerXAnchor.constraint(equalTo: attachedImageView.centerXAnchor),
             addImageLabel.centerYAnchor.constraint(equalTo: attachedImageView.centerYAnchor),
             
-            // Camera Button - bottom right corner
-            editImageBtn.bottomAnchor.constraint(equalTo: attachedImageView.bottomAnchor, constant: -10),
-            editImageBtn.trailingAnchor.constraint(equalTo: attachedImageView.trailingAnchor, constant: -10),
-            editImageBtn.widthAnchor.constraint(equalToConstant: 32),
-            editImageBtn.heightAnchor.constraint(equalToConstant: 32),
+            editImageBtn.topAnchor.constraint(equalTo: attachedImageView.bottomAnchor, constant: 6),
+            editImageBtn.centerXAnchor.constraint(equalTo: attachedImageView.centerXAnchor),
+            editImageBtn.heightAnchor.constraint(equalToConstant: 30),
             
-            // Save Button
-            saveBtn.topAnchor.constraint(equalTo: attachedImageView.bottomAnchor, constant: 24),
+            saveBtn.topAnchor.constraint(equalTo: editImageBtn.bottomAnchor, constant: 16),
             saveBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             saveBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             saveBtn.heightAnchor.constraint(equalToConstant: 50),
             
-            // Delete Button
             deleteBtn.topAnchor.constraint(equalTo: saveBtn.bottomAnchor, constant: 16),
             deleteBtn.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             deleteBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
@@ -166,7 +196,10 @@ class TransactionDetailViewController: UIViewController {
         guard let expense = expense else { return }
         titleField.text = expense.title
         amountField.text = String(format: "%.2f", expense.amount)
-        datePicker.date = expense.date ?? Date()
+        selectedDate = expense.date ?? Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd/MM/yyyy"
+        dateField.text = formatter.string(from: selectedDate)
         
         if let imageData = expense.image, let image = UIImage(data: imageData) {
             attachedImageView.image = image
@@ -175,23 +208,75 @@ class TransactionDetailViewController: UIViewController {
             attachedImageView.image = nil
             addImageLabel.isHidden = false
         }
+        editImageBtn.isHidden = expense.image == nil
     }
     
-    // MARK: - Save
+    // MARK: - Show Date Picker
+    @objc func showDatePicker() {
+        let alert = UIAlertController(title: "", message: "\n\n\n\n\n\n\n\n\n\n\n\n\n\n", preferredStyle: .actionSheet)
+        
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .inline
+        picker.date = selectedDate
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        alert.view.addSubview(picker)
+        
+        NSLayoutConstraint.activate([
+            picker.leadingAnchor.constraint(equalTo: alert.view.leadingAnchor, constant: 8),
+            picker.trailingAnchor.constraint(equalTo: alert.view.trailingAnchor, constant: -8),
+            picker.topAnchor.constraint(equalTo: alert.view.topAnchor, constant: 8)
+        ])
+        
+        alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.selectedDate = picker.date
+            let formatter = DateFormatter()
+            formatter.dateFormat = "dd/MM/yyyy"
+            self.dateField.text = formatter.string(from: picker.date)
+        })
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+    
+    // MARK: - Save 
     @objc func saveTapped() {
-        guard let expense = expense,
-              let newTitle = titleField.text, !newTitle.isEmpty,
-              let amountText = amountField.text,
-              let newAmount = Double(amountText) else {
-            let alert = UIAlertController(title: "Error", message: "Please fill all fields", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true)
+        guard let expense = expense else { return }
+
+        guard let newTitle = titleField.text, !newTitle.isEmpty else {
+            showAlert(message: "Please enter a title")
             return
         }
-        
+
+        guard let amountText = amountField.text, !amountText.isEmpty else {
+            showAlert(message: "Please enter an amount")
+            return
+        }
+
+        guard let newAmount = Double(amountText) else {
+            showAlert(message: "Amount must be a valid number")
+            return
+        }
+
+        guard newAmount > 0 else {
+            showAlert(message: "Amount must be greater than 0")
+            return
+        }
+
+        guard newAmount <= 10_000_000 else {
+            showAlert(message: "Amount seems too large. Please check and try again")
+            return
+        }
+
+        guard selectedDate <= Date() else {
+            showAlert(message: "Date cannot be in the future")
+            return
+        }
+
         expense.title = newTitle
         expense.amount = newAmount
-        expense.date = datePicker.date
+        expense.date = selectedDate
         
         if let selectedImage = selectedImage {
             expense.image = selectedImage.jpegData(compressionQuality: 0.7)
@@ -249,13 +334,23 @@ class TransactionDetailViewController: UIViewController {
             self?.present(picker, animated: true)
         })
         
-        alert.addAction(UIAlertAction(title: "Remove Image", style: .destructive) { [weak self] _ in
-            self?.selectedImage = nil
-            self?.attachedImageView.image = nil
-            self?.addImageLabel.isHidden = false
-        })
-        
+        if attachedImageView.image != nil {
+            alert.addAction(UIAlertAction(title: "Remove Image", style: .destructive) { [weak self] _ in
+                self?.selectedImage = nil
+                self?.attachedImageView.image = nil
+                self?.addImageLabel.isHidden = false
+                self?.editImageBtn.isHidden = true
+            })
+        }
+    
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    // MARK: - Helper
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
 }
@@ -268,6 +363,7 @@ extension TransactionDetailViewController: UIImagePickerControllerDelegate, UINa
             selectedImage = image
             attachedImageView.image = image
             addImageLabel.isHidden = true
+            editImageBtn.isHidden = false
         }
     }
 }
@@ -280,6 +376,7 @@ extension TransactionDetailViewController: UIDocumentPickerDelegate {
             selectedImage = image
             attachedImageView.image = image
             addImageLabel.isHidden = true
+            editImageBtn.isHidden = false
         }
     }
 }

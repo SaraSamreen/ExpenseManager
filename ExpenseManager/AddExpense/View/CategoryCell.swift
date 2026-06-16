@@ -27,9 +27,12 @@ class CategoryCell: UITableViewCell, UICollectionViewDelegate, UICollectionViewD
         }
         collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "CategoryChipCell")
     }
+
+     
     
     func configure(title: String, categories: [String], selected: String, onAdd: @escaping () -> Void, onSelect: @escaping (String) -> Void) {
         titleLabel.text = title
+        titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         self.categories = categories
         self.selectedCategory = selected
         self.onAddTapped = onAdd

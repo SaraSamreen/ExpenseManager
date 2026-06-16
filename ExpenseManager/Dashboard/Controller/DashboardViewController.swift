@@ -22,6 +22,18 @@ class DashboardViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
+        tableView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
+        collectionView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "gearshape.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(openSettings)
+        )
+        navigationItem.rightBarButtonItem?.tintColor = .systemBlue
+        
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.minimumInteritemSpacing = 20
             layout.minimumLineSpacing = 20
@@ -42,6 +54,12 @@ class DashboardViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadData()
+    }
+    
+    @objc func openSettings() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let vc = storyboard.instantiateViewController(withIdentifier: "SettingsViewController")
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     func loadData() {
@@ -90,7 +108,7 @@ extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpenseCardCell", for: indexPath) as! ExpenseCardCell
         cell.titleLabel.text = cards[indexPath.row]
-        cell.amountLabel.text = indexPath.row == 0 ? "Rs \(String(format: "%.2f", totalIncome))" : "Rs \(String(format: "%.2f", totalExpense))"
+        cell.amountLabel.text = indexPath.row == 0 ? "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", totalIncome))" : "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", totalExpense))"
         cell.configure(isSelected: selectedCardIndex == indexPath.row)
         return cell
     }
@@ -142,7 +160,7 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
         formatter.dateFormat = "dd MMM yyyy"
         cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
         
-        cell.amountLabel.text = "Rs \(String(format: "%.2f", expense.amount))"
+        cell.amountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", expense.amount))"
 
         if expense.type == "income" {
             cell.amountLabel.textColor = .systemGreen

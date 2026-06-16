@@ -32,37 +32,52 @@ class AddGoalViewController: UIViewController {
     }
     
     func setupUI() {
-    
-        // Deadline default text
+        view.backgroundColor = UIColor(white: 0.96, alpha: 1)
+        
+        [titleTextField, amountTextField, contributionTextField, deadlineTextField].forEach {
+            styleField($0!)
+        }
+        
+        amountTextField.keyboardType = .decimalPad
+        
+        // Deadline
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyyy"
         deadlineTextField.text = formatter.string(from: selectedDeadline)
         deadlineTextField.inputView = UIView()
         let deadlineTap = UITapGestureRecognizer(target: self, action: #selector(showDatePicker))
         deadlineTextField.addGestureRecognizer(deadlineTap)
+        addRightIcon(to: deadlineTextField, systemName: "calendar")
         
-        // Add calendar icon to deadline field
-        let calIcon = UIImageView(image: UIImage(systemName: "calendar"))
-        calIcon.tintColor = .gray
-        calIcon.frame = CGRect(x: 0, y: 0, width: 35, height: 20)
-        calIcon.contentMode = .scaleAspectFit
-        deadlineTextField.rightView = calIcon
-        deadlineTextField.rightViewMode = .always
-        
-        // Contribution default
+        // Contribution
         contributionTextField.text = "Yearly"
         contributionTextField.inputView = UIView()
-        
-        // Add arrow icon to contribution field
-        let arrow = UIImageView(image: UIImage(systemName: "chevron.down"))
-        arrow.tintColor = .gray
-        arrow.frame = CGRect(x: 0, y: 0, width: 35, height: 20)
-        arrow.contentMode = .scaleAspectFit
-        contributionTextField.rightView = arrow
-        contributionTextField.rightViewMode = .always
-        
         let contributionTap = UITapGestureRecognizer(target: self, action: #selector(showContributionPicker))
         contributionTextField.addGestureRecognizer(contributionTap)
+        addRightIcon(to: contributionTextField, systemName: "chevron.down")
+    }
+    
+    func styleField(_ textField: UITextField) {
+        textField.layer.cornerRadius = 12
+        textField.layer.masksToBounds = true
+        textField.backgroundColor = .white
+        textField.layer.borderColor = UIColor(white: 0.88, alpha: 1).cgColor
+        textField.layer.borderWidth = 1
+        textField.borderStyle = .none
+        let padding = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 44))
+        textField.leftView = padding
+        textField.leftViewMode = .always
+    }
+    
+    func addRightIcon(to textField: UITextField, systemName: String) {
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 44))
+        let icon = UIImageView(image: UIImage(systemName: systemName))
+        icon.tintColor = .systemBlue
+        icon.frame = CGRect(x: 8, y: 12, width: 20, height: 20)
+        icon.contentMode = .scaleAspectFit
+        container.addSubview(icon)
+        textField.rightView = container
+        textField.rightViewMode = .always
     }
     
     @objc func backTapped() {
@@ -108,15 +123,34 @@ class AddGoalViewController: UIViewController {
     }
     
     @IBAction func addGoalTapped(_ sender: UIButton) {
-        guard let title = titleTextField.text, !title.isEmpty,
-              let amountText = amountTextField.text, !amountText.isEmpty,
-              let amount = Double(amountText), amount > 0 else {
-            showAlert(message: "Please fill in all fields")
+        guard let title = titleTextField.text, !title.isEmpty else {
+            showAlert(message: "Please enter a goal title")
+            return
+        }
+        guard let amountText = amountTextField.text, !amountText.isEmpty else {
+            showAlert(message: "Please enter an amount")
+            return
+        }
+        guard let amount = Double(amountText) else {
+            showAlert(message: "Amount must be a valid number")
+            return
+        }
+        
+        guard amount > 0 else {
+            showAlert(message: "Amount must be greater than 0")
+            return
+        }
+        
+        guard amount <= 10_000_000 else {
+            showAlert(message: "Amount seems too large. Please check and try again")
+            return
+        }
+        guard selectedDeadline > Date() else {
+            showAlert(message: "Deadline must be in the future")
             return
         }
         
         let icon = CoreDataManager.shared.iconName(for: title)
-        
         CoreDataManager.shared.saveGoal(
             title: title,
             amount: amount,
@@ -124,7 +158,6 @@ class AddGoalViewController: UIViewController {
             contributionType: selectedContributionType,
             icon: icon
         )
-        
         dismiss(animated: true)
     }
     

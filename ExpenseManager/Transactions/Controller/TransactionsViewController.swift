@@ -6,6 +6,7 @@ class TransactionsViewController: UIViewController {
     
     var typeBtn = UIButton(type: .system)
     var monthBtn = UIButton(type: .system)
+    var clearFilterBtn = UIButton(type: .system)
     
     var allExpenses: [Expense] = []
     var expenses: [Expense] = []
@@ -26,7 +27,7 @@ class TransactionsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadData()
-        showEmptyStateIfNeeded() 
+        showEmptyStateIfNeeded()
     }
     
     func showEmptyStateIfNeeded() {
@@ -69,6 +70,23 @@ class TransactionsViewController: UIViewController {
         monthBtn.addTarget(self, action: #selector(monthBtnTapped), for: .touchUpInside)
         monthBtn.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(monthBtn)
+        
+        clearFilterBtn.setTitle("✕ Clear", for: .normal)
+        clearFilterBtn.setTitleColor(.systemRed, for: .normal)
+        clearFilterBtn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        clearFilterBtn.backgroundColor = UIColor(white: 0.93, alpha: 1)
+        clearFilterBtn.layer.cornerRadius = 8
+        clearFilterBtn.isHidden = true
+        clearFilterBtn.addTarget(self, action: #selector(clearFilter), for: .touchUpInside)
+        clearFilterBtn.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(clearFilterBtn)
+        
+        NSLayoutConstraint.activate([
+            clearFilterBtn.centerYAnchor.constraint(equalTo: monthBtn.centerYAnchor),
+            clearFilterBtn.leadingAnchor.constraint(equalTo: monthBtn.trailingAnchor, constant: 12),
+            clearFilterBtn.heightAnchor.constraint(equalToConstant: 36),
+            clearFilterBtn.widthAnchor.constraint(equalToConstant: 80)
+        ])
         
         // TableView
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -114,14 +132,16 @@ class TransactionsViewController: UIViewController {
         
         expenses = filtered
         tableView.reloadData()
+        showEmptyStateIfNeeded()
     }
     
     @objc func typeBtnTapped() {
         let alert = UIAlertController(title: "Filter by Type", message: nil, preferredStyle: .actionSheet)
-        ["All", "Income", "Expense"].forEach { type in
+        ["Income", "Expense"].forEach { type in
             alert.addAction(UIAlertAction(title: type, style: .default) { [weak self] _ in
                 self?.selectedType = type
                 self?.typeBtn.setTitle("\(type) ▾", for: .normal)
+                self?.clearFilterBtn.isHidden = false
                 self?.applyFilter()
             })
         }
@@ -144,25 +164,29 @@ class TransactionsViewController: UIViewController {
             datePicker.trailingAnchor.constraint(equalTo: alert.view.trailingAnchor, constant: -8),
         ])
         
-        alert.addAction(UIAlertAction(title: "Show", style: .default) { [weak self] _ in
+        alert.addAction(UIAlertAction(title: "Done", style: .default) { [weak self] _ in
             let selected = datePicker.date
             let formatter = DateFormatter()
             formatter.dateFormat = "dd MMM yyyy"
             self?.monthBtn.setTitle("\(formatter.string(from: selected)) ▾", for: .normal)
             self?.selectedDate = selected
-            self?.applyFilter()
-        })
-        
-        alert.addAction(UIAlertAction(title: "Show All", style: .default) { [weak self] _ in
-            self?.selectedDate = nil
-            self?.monthBtn.setTitle("Month ▾", for: .normal)
+            self?.clearFilterBtn.isHidden = false
             self?.applyFilter()
         })
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
     }
-}
+    
+    @objc func clearFilter() {
+        selectedDate = nil
+        selectedType = "All"
+        monthBtn.setTitle("Date ▾", for: .normal)
+        typeBtn.setTitle("Type ▾", for: .normal)
+        clearFilterBtn.isHidden = true
+        applyFilter()
+    }}
+
     // MARK: - TableView
     extension TransactionsViewController: UITableViewDelegate, UITableViewDataSource {
         
@@ -188,7 +212,7 @@ class TransactionsViewController: UIViewController {
                 self.present(alert, animated: true)
             }
             deleteAction.image = UIImage(systemName: "trash")
-            deleteAction.backgroundColor = .systemBlue
+            deleteAction.backgroundColor = .systemRed
             
             
             // Edit Action
@@ -240,7 +264,7 @@ class TransactionsViewController: UIViewController {
             formatter.dateFormat = "dd MMM yyyy"
             cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
             
-            cell.amountLabel.text = "Rs \(String(format: "%.2f", expense.amount))"
+            cell.amountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", expense.amount))"
 
             if expense.type == "income" {
                 cell.amountLabel.textColor = .systemGreen

@@ -15,6 +15,7 @@ class ImagePickerCell: UITableViewCell {
     let imagePreview = UIImageView()
     let placeholderLabel = UILabel()
     let pickBtn = UIButton(type: .system)
+    let changePhotoBtn = UIButton(type: .system)
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -53,6 +54,17 @@ class ImagePickerCell: UITableViewCell {
         pickBtn.addTarget(self, action: #selector(pickTapped), for: .touchUpInside)
         containerView.addSubview(pickBtn)
         
+        // Change Photo button - sits at bottom of image
+        changePhotoBtn.setTitle("Change Photo", for: .normal)
+        changePhotoBtn.setTitleColor(.white, for: .normal)
+        changePhotoBtn.titleLabel?.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+        changePhotoBtn.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        changePhotoBtn.layer.cornerRadius = 8
+        changePhotoBtn.isHidden = true
+        changePhotoBtn.translatesAutoresizingMaskIntoConstraints = false
+        changePhotoBtn.addTarget(self, action: #selector(pickTapped), for: .touchUpInside)
+        containerView.addSubview(changePhotoBtn)
+        
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             containerView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
@@ -69,6 +81,12 @@ class ImagePickerCell: UITableViewCell {
             imagePreview.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
             imagePreview.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             imagePreview.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            
+            // Change button sits bottom center of image
+            changePhotoBtn.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -10),
+            changePhotoBtn.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            changePhotoBtn.heightAnchor.constraint(equalToConstant: 30),
+            changePhotoBtn.widthAnchor.constraint(equalToConstant: 120),
         ])
     }
     
@@ -82,10 +100,12 @@ class ImagePickerCell: UITableViewCell {
             imagePreview.isHidden = false
             placeholderLabel.isHidden = true
             pickBtn.isHidden = true
+            changePhotoBtn.isHidden = false  // show when image exists
         } else {
             imagePreview.isHidden = true
             placeholderLabel.isHidden = false
             pickBtn.isHidden = false
+            changePhotoBtn.isHidden = true   // hide when no image
         }
     }
 }

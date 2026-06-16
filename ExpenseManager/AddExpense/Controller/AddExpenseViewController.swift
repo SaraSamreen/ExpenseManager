@@ -34,13 +34,14 @@ class AddExpenseViewController: UIViewController {
         incomeBtn.clipsToBounds = true
         expenseBtn.clipsToBounds = true
         loadCategories()
+    
     }
     
     func loadCategories() {
-        incomeCategories = CoreDataManager.shared.fetchCategories(type: "income")
-        expenseCategories = CoreDataManager.shared.fetchCategories(type: "expense")
+        incomeCategories = CoreDataManager.shared.fetchCategories(type: "income").reversed()
+        expenseCategories = CoreDataManager.shared.fetchCategories(type: "expense").reversed()
     }
-
+    
     func selectType(_ type: String) {
         selectedType = type
         if type == "income" {
@@ -54,7 +55,15 @@ class AddExpenseViewController: UIViewController {
             incomeBtn.backgroundColor = .white
             incomeBtn.setTitleColor(.black, for: .normal)
         }
+        
         selectedCategory = ""
+        if let titleCell = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? TextFieldCell {
+            titleCell.textField.text = ""
+        }
+        if let amountCell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as? TextFieldCell {
+            amountCell.textField.text = ""
+        }
+        
         tableView.reloadData()
     }
 
@@ -73,7 +82,7 @@ extension AddExpenseViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.row == 4 {
-            return selectedImage != nil ? 200 : 80
+            return selectedImage != nil ? 200 : 70
         }
         return 100
     }
@@ -87,19 +96,19 @@ extension AddExpenseViewController: UITableViewDelegate, UITableViewDataSource {
             return cell
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: "TextFieldCell") as! TextFieldCell
-            cell.titleLabel.text = selectedType == "income" ? "Income Title" : "Expense Title"
+            cell.titleLabel.text = selectedType == "income" ? "Income Title *" : "Expense Title *"
             cell.textField.placeholder = selectedType == "income" ? "Enter income title" : "Enter expense title"
             return cell
         case 2:
             let cell = tableView.dequeueReusableCell(withIdentifier: "AmountCell") as! TextFieldCell
-            cell.titleLabel.text = "Amount"
+            cell.titleLabel.text = "Amount *"
             cell.textField.placeholder = "Enter amount"
             cell.textField.keyboardType = .decimalPad
             return cell
         case 3:
             let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell") as! CategoryCell
             let cats = selectedType == "income" ? incomeCategories : expenseCategories
-            let label = selectedType == "income" ? "Income Category" : "Expense Category"
+            let label = selectedType == "income" ? "Income Category *" : "Expense Category *"
             cell.configure(
                 title: label,
                 categories: cats,
@@ -130,7 +139,12 @@ extension AddExpenseViewController: UITableViewDelegate, UITableViewDataSource {
 extension AddExpenseViewController {
     
     func showImageOptions() {
-        let alert = UIAlertController(title: "Attach Image", message: nil, preferredStyle: .actionSheet)
+        let hasImage = selectedImage != nil
+        let alert = UIAlertController(
+            title: hasImage ? "Change Receipt" : "Attach Receipt",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
         
         alert.addAction(UIAlertAction(title: "Camera", style: .default) { [weak self] _ in
             let picker = UIImagePickerController()
@@ -152,6 +166,13 @@ extension AddExpenseViewController {
             self?.present(picker, animated: true)
         })
         
+        if hasImage {
+            alert.addAction(UIAlertAction(title: "Remove Image", style: .destructive) { [weak self] _ in
+                self?.selectedImage = nil
+                self?.tableView.reloadRows(at: [IndexPath(row: 4, section: 0)], with: .automatic)
+            })
+        }
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
     }
@@ -164,6 +185,9 @@ extension AddExpenseViewController {
             guard let self = self else { return }
             CoreDataManager.shared.saveCategory(name: name, type: self.selectedType)
             self.loadCategories()
+            
+            self.selectedCategory = name
+            
             self.tableView.reloadRows(at: [IndexPath(row: 3, section: 0)], with: .automatic)
         })
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
@@ -196,21 +220,45 @@ extension AddExpenseViewController {
     
     func saveEntry() {
         guard let titleCell = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? TextFieldCell,
-              let amountCell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as? TextFieldCell,
-              let title = titleCell.textField.text, !title.isEmpty,
-              let amountText = amountCell.textField.text, !amountText.isEmpty,
-              let amount = Double(amountText), amount > 0 else {
-            showAlert(message: "Please fill in all fields")
+              let amountCell = tableView.cellForRow(at: IndexPath(row: 2, section: 0)) as? TextFieldCell else { return }
+        
+        guard let title = titleCell.textField.text, !title.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showAlert(message: selectedType == "income" ? "Please enter an income title" : "Please enter an expense title")
+            return
+        }
+        
+        guard title.trimmingCharacters(in: .whitespaces).count >= 2 else {
+            showAlert(message: "Title must be at least 2 characters")
+            return
+        }
+        
+        guard let amountText = amountCell.textField.text, !amountText.isEmpty else {
+            showAlert(message: "Please enter an amount")
+            return
+        }
+        
+        guard let amount = Double(amountText) else {
+            showAlert(message: "Amount must be a valid number")
+            return
+        }
+        
+        guard amount > 0 else {
+            showAlert(message: "Amount must be greater than 0")
+            return
+        }
+        
+        guard amount <= 10_000_000 else {
+            showAlert(message: "Amount seems too large. Please check and try again")
             return
         }
         
         guard !selectedCategory.isEmpty else {
-            showAlert(message: "Please select a category")
+            showAlert(message: selectedType == "income" ? "Please select category" : "Please select category")
             return
         }
 
         CoreDataManager.shared.saveExpense(
-            title: title,
+            title: title.trimmingCharacters(in: .whitespaces),
             amount: amount,
             date: selectedDate,
             type: selectedType,
@@ -225,7 +273,7 @@ extension AddExpenseViewController {
         selectedImage = nil
         
         tableView.reloadData()
-        showAlert(message: "Saved successfully!")
+        showAlert(message: selectedType == "income" ? "Income added successfully!" : "Expense added successfully!")
     }
 
     func showAlert(message: String) {

@@ -26,17 +26,17 @@ class DatePickerCell: UITableViewCell {
         dateTextField.leftView = padding
         dateTextField.leftViewMode = .always
         
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 54, height: 44))
         let calendarBtn = UIButton(type: .system)
         calendarBtn.setImage(UIImage(systemName: "calendar"), for: .normal)
         calendarBtn.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
-        calendarBtn.addTarget(self, action: #selector(calendarTapped), for: .touchUpInside)
-        dateTextField.rightView = calendarBtn
-        dateTextField.rightViewMode = .always
-        
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 54, height: 44))
-        calendarBtn.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        calendarBtn.isUserInteractionEnabled = false  // visual only
         containerView.addSubview(calendarBtn)
         dateTextField.rightView = containerView
+        dateTextField.rightViewMode = .always
+      
+        let tap = UITapGestureRecognizer(target: self, action: #selector(calendarTapped))
+        self.addGestureRecognizer(tap)
     }
     
     @objc func calendarTapped() {

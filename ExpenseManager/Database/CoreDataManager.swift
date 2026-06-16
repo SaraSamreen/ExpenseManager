@@ -159,4 +159,17 @@ class CoreDataManager {
             print("Error deleting goal: \(error)")
         }
     }
+    // MARK: - Currency Symbol
+    func currencySymbol() -> String {
+        let code = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD"
+        switch code {
+        case "USD": return "$"
+        case "EUR": return "€"
+        case "PKR": return "Rs"
+        case "INR": return "₹"
+        case "AED": return "AED"
+        case "GBP": return "£"
+        default: return "$"
+        }
+    }
 }

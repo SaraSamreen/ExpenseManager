@@ -73,7 +73,7 @@ class GoalsViewController: UIViewController {
         let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
         monthlySavings = max(0, monthlyIncome - monthlyExpense)
         
-        savingsAmountLabel.text = "Rs \(String(format: "%.2f", currentSavings))"
+        savingsAmountLabel.text = "\(CoreDataManager.shared.currencySymbol()) \(String(format: "%.2f", currentSavings))"
         goals = Array(CoreDataManager.shared.fetchGoals().prefix(3))
         tableView.reloadData()
     }

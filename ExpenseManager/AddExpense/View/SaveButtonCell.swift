@@ -17,6 +17,7 @@ class SaveButtonCell: UITableViewCell {
         saveButton.layer.cornerRadius = 12
         saveButton.backgroundColor = .systemBlue
         saveButton.setTitleColor(.white, for: .normal)
+        saveButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
     }
     
     @IBAction func saveButtonTapped(_ sender: UIButton) {

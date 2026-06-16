@@ -23,7 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let hasSeenOnboarding = UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
         
         // For Testing
-       // UserDefaults.standard.removeObject(forKey: "hasSeenOnboarding")
+        //UserDefaults.standard.removeObject(forKey: "hasSeenOnboarding")
 
         
         if !hasSeenOnboarding {

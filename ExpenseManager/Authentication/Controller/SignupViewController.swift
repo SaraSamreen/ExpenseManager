@@ -25,22 +25,62 @@ class SignupViewController: UIViewController {
     }
     
     // MARK: - IBActions
-       @IBAction func signupBtnClicked(_ sender: UIButton) {
-           guard let email = emailTextField.text, !email.isEmpty,
-                 let password = passwordTextField.text, !password.isEmpty else {
-               showAlert(message: "Please fill in all fields")
-               return
-           }
-           
-           Auth.auth().createUser(withEmail: email, password: password) { result, error in
-               if let error = error {
-                   self.showAlert(message: error.localizedDescription)
-                   return
-               }
-               // Go to home screen
-               self.navigateToHome()
-           }
-       }
+    @IBAction func signupBtnClicked(_ sender: UIButton) {
+        guard let username = usernameTextField.text, !username.trimmingCharacters(in: .whitespaces).isEmpty else {
+            showAlert(message: "Please enter a username")
+            return
+        }
+        
+        guard username.trimmingCharacters(in: .whitespaces).count >= 3 else {
+            showAlert(message: "Username must be at least 3 characters")
+            return
+        }
+        
+        guard let email = emailTextField.text, !email.isEmpty else {
+            showAlert(message: "Please enter your email")
+            return
+        }
+        
+        guard email.contains("@") && email.contains(".") else {
+            showAlert(message: "Please enter a valid email address")
+            return
+        }
+        
+        guard let password = passwordTextField.text, !password.isEmpty else {
+            showAlert(message: "Please enter a password")
+            return
+        }
+        
+        guard password.count >= 6 else {
+            showAlert(message: "Password must be at least 6 characters")
+            return
+        }
+        
+        showLoader()
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            self.hideLoader()
+            if let error = error {
+                self.showAlert(message: error.localizedDescription)
+                return
+            }
+            self.navigateToHome()
+        }
+    }
+    
+    // MARK: - Helpers
+    func showLoader() {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.tag = 999
+        spinner.center = view.center
+        spinner.startAnimating()
+        view.addSubview(spinner)
+        view.isUserInteractionEnabled = false
+    }
+
+    func hideLoader() {
+        view.viewWithTag(999)?.removeFromSuperview()
+        view.isUserInteractionEnabled = true
+    }
     
     func navigateToHome() {
         DispatchQueue.main.async {
