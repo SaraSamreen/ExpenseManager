@@ -66,7 +66,7 @@ class GoalsViewController: UIViewController {
         let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) {
             $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
         }
-        currentSavings = max(0, totalIncome - totalExpense)  // ✅ stays in PKR
+        currentSavings = max(0, totalIncome - totalExpense)
         
         // This month's savings rate
         let calendar = Calendar.current
@@ -80,9 +80,9 @@ class GoalsViewController: UIViewController {
         let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) {
             $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
         }
-        monthlySavings = max(0, monthlyIncome - monthlyExpense)  // ✅ stays in PKR
+        monthlySavings = max(0, monthlyIncome - monthlyExpense)
         
-        // ✅ Convert only for display here
+        // Convert only for display here
         let symbol = CurrencyManager.shared.currencySymbol()
         let displaySavings = CurrencyManager.shared.convertAmount(currentSavings, from: "PKR")
         savingsAmountLabel.text = "\(symbol) \(String(format: "%.2f", displaySavings))"

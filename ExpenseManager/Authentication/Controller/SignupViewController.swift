@@ -41,7 +41,7 @@ class SignupViewController: UIViewController {
             return
         }
         
-        guard email.contains("@") && email.contains(".") else {
+        guard isValidEmail(email) else {
             showAlert(message: "Please enter a valid email address")
             return
         }
@@ -105,6 +105,11 @@ class SignupViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
         }
+    
+    func isValidEmail(_ email: String) -> Bool {
+        let regex = "^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
+    }
     
     func styleTextField(_ textField: UITextField) {
         textField.layer.cornerRadius = 10

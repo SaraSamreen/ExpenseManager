@@ -285,8 +285,7 @@ class TransactionDetailViewController: UIViewController {
         }
 
         CoreDataManager.shared.saveContext()
-
-        // ✅ Also update Firestore if synced
+    
         if let firestoreID = expense.firestoreID {
             FirestoreManager.shared.updateExpenseInFirestore(documentID: firestoreID, title: newTitle, amount: newAmount, date: selectedDate)
         }

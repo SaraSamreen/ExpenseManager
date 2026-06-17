@@ -18,6 +18,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var cloudSwitch: UISwitch!
     @IBOutlet weak var currencyValueLabel: UILabel!
     @IBOutlet weak var cloudSyncStatusLabel: UILabel!
+    @IBOutlet weak var logoutButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,6 +56,19 @@ class SettingsViewController: UIViewController {
         
         profileImageView.layer.borderWidth = 3
         profileImageView.layer.borderColor = UIColor.white.cgColor
+       
+       // Logout button styling
+       logoutButton.layer.cornerRadius = 12
+       logoutButton.clipsToBounds = true
+       logoutButton.backgroundColor = UIColor(red: 0.95, green: 0.25, blue: 0.3, alpha: 1)
+       logoutButton.setTitleColor(.white, for: .normal)
+       logoutButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 16)
+
+       logoutButton.layer.shadowColor = UIColor.black.cgColor
+       logoutButton.layer.shadowOpacity = 0.1
+       logoutButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+       logoutButton.layer.shadowRadius = 4
+       logoutButton.layer.masksToBounds = false
         
         view.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
     }
@@ -94,11 +108,42 @@ class SettingsViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "\(code) - \(name)", style: .default) { [weak self] _ in
                 self?.currencyValueLabel.text = "\(code) (\(name))"
                 UserDefaults.standard.set(code, forKey: "selectedCurrency")
-                FirestoreManager.shared.saveCurrencyPreference(currency: code) 
+                FirestoreManager.shared.saveCurrencyPreference(currency: code)
             })
         }
         
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         present(alert, animated: true)
+    }
+    
+    @IBAction func logoutTapped(_ sender: Any) {
+        let alert = UIAlertController(title: "Log Out", message: "Are you sure you want to log out?", preferredStyle: .alert)
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Log Out", style: .destructive) { [weak self] _ in
+            self?.performLogout()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    func performLogout() {
+        do {
+            try Auth.auth().signOut()
+            
+            UserDefaults.standard.removeObject(forKey: "selectedCurrency")
+            UserDefaults.standard.removeObject(forKey: "cloudSyncEnabled")
+            
+            if let storyboard = self.storyboard {
+                let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")
+                loginVC.modalPresentationStyle = .fullScreen
+                self.present(loginVC, animated: true)
+            }
+            
+        } catch let signOutError as NSError {
+            let errorAlert = UIAlertController(title: "Error", message: "Failed to log out: \(signOutError.localizedDescription)", preferredStyle: .alert)
+            errorAlert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(errorAlert, animated: true)
+        }
     }
 }

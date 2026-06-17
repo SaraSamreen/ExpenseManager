@@ -1069,16 +1069,31 @@
                                     <constraint firstAttribute="trailing" secondItem="uDy-CC-72a" secondAttribute="trailing" id="xkE-Ka-bN1"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5mZ-sj-EcR">
+                                <rect key="frame" x="40" y="702" width="322" height="44"/>
+                                <color key="backgroundColor" name="E80B26"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="LOGOUT">
+                                    <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="logoutTapped:" destination="Vvk-Kn-hsb" eventType="touchUpInside" id="KGf-BK-qYk"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="COI-OL-oGb"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="COI-OL-oGb" firstAttribute="trailing" secondItem="5mZ-sj-EcR" secondAttribute="trailing" constant="40" id="0Ue-6Z-qQo"/>
+                            <constraint firstItem="5mZ-sj-EcR" firstAttribute="leading" secondItem="COI-OL-oGb" secondAttribute="leading" constant="40" id="2sK-7M-B07"/>
                             <constraint firstItem="aW5-S5-3iz" firstAttribute="top" secondItem="5e3-6I-jf2" secondAttribute="bottom" constant="8" id="A7g-A2-i0i"/>
                             <constraint firstItem="COI-OL-oGb" firstAttribute="trailing" secondItem="sqS-Pt-2jB" secondAttribute="trailing" constant="16" id="DIB-DG-nou"/>
                             <constraint firstItem="sqS-Pt-2jB" firstAttribute="leading" secondItem="COI-OL-oGb" secondAttribute="leading" constant="16" id="EoC-ZG-ZcK"/>
                             <constraint firstItem="sqS-Pt-2jB" firstAttribute="top" secondItem="aW5-S5-3iz" secondAttribute="bottom" constant="24" id="Jjf-ZQ-BaJ"/>
                             <constraint firstItem="3GT-K7-Gp6" firstAttribute="top" secondItem="M2H-53-QUu" secondAttribute="top" constant="70" id="Oh9-ec-UjS"/>
                             <constraint firstItem="5e3-6I-jf2" firstAttribute="top" secondItem="slu-lI-XCp" secondAttribute="bottom" constant="22" id="On7-Rz-F78"/>
+                            <constraint firstItem="COI-OL-oGb" firstAttribute="bottom" secondItem="5mZ-sj-EcR" secondAttribute="bottom" constant="60" id="TUs-wD-5tu"/>
+                            <constraint firstItem="5mZ-sj-EcR" firstAttribute="centerX" secondItem="M2H-53-QUu" secondAttribute="centerX" id="Xzn-3l-Oz7"/>
                             <constraint firstItem="aW5-S5-3iz" firstAttribute="centerX" secondItem="M2H-53-QUu" secondAttribute="centerX" id="c6g-Hy-SAQ"/>
                             <constraint firstItem="slu-lI-XCp" firstAttribute="centerX" secondItem="M2H-53-QUu" secondAttribute="centerX" id="h1d-0J-v9T"/>
                             <constraint firstItem="5e3-6I-jf2" firstAttribute="centerX" secondItem="M2H-53-QUu" secondAttribute="centerX" id="ihT-h6-M5E"/>
@@ -1094,6 +1109,7 @@
                         <outlet property="cloudSyncStatusLabel" destination="Ogc-zK-xPg" id="DTA-pN-YyQ"/>
                         <outlet property="currencyIconBack" destination="GWA-OQ-Xv4" id="74z-Ei-6gy"/>
                         <outlet property="currencyValueLabel" destination="Ny0-wT-0OX" id="L6j-Bw-WRS"/>
+                        <outlet property="logoutButton" destination="5mZ-sj-EcR" id="KCg-Ke-Goo"/>
                         <outlet property="nameLabel" destination="5e3-6I-jf2" id="oYk-st-DII"/>
                         <outlet property="profileImageView" destination="slu-lI-XCp" id="GnB-BE-pPm"/>
                     </connections>
@@ -1775,6 +1791,9 @@
         </namedColor>
         <namedColor name="80C9D4">
             <color red="0.50196078431372548" green="0.78823529411764703" blue="0.83137254901960789" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="E80B26">
+            <color red="0.90980392156862744" green="0.043137254901960784" blue="0.14901960784313725" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="WidgetBackground">
             <color red="0.0" green="0.46000000000000002" blue="0.89000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

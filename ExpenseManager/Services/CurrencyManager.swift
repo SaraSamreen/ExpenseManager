@@ -68,7 +68,7 @@ class CurrencyManager {
         case "EUR": return "€"
         case "PKR": return "₨"
         case "INR": return "₹"
-        case "AED": return "د.إ"
+        case "AED": return "AED"
         default: return "₨"
         }
     }
