@@ -151,13 +151,18 @@ class AddGoalViewController: UIViewController {
         }
         
         let icon = CoreDataManager.shared.iconName(for: title)
-        CoreDataManager.shared.saveGoal(
+        let savedGoal = CoreDataManager.shared.saveGoal(
             title: title,
             amount: amount,
             deadline: selectedDeadline,
             contributionType: selectedContributionType,
             icon: icon
         )
+        
+        if UserDefaults.standard.bool(forKey: "cloudSyncEnabled"), let savedGoal = savedGoal {
+            FirestoreManager.shared.syncGoal(goal: savedGoal)
+        }
+        
         dismiss(animated: true)
     }
     

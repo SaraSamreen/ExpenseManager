@@ -277,14 +277,20 @@ class TransactionDetailViewController: UIViewController {
         expense.title = newTitle
         expense.amount = newAmount
         expense.date = selectedDate
-        
+
         if let selectedImage = selectedImage {
             expense.image = selectedImage.jpegData(compressionQuality: 0.7)
         } else if attachedImageView.image == nil {
             expense.image = nil
         }
-        
+
         CoreDataManager.shared.saveContext()
+
+        // ✅ Also update Firestore if synced
+        if let firestoreID = expense.firestoreID {
+            FirestoreManager.shared.updateExpenseInFirestore(documentID: firestoreID, title: newTitle, amount: newAmount, date: selectedDate)
+        }
+
         onDismiss?()
         navigationController?.popViewController(animated: true)
     }

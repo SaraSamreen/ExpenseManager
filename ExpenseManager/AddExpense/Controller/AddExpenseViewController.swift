@@ -257,14 +257,19 @@ extension AddExpenseViewController {
             return
         }
 
-        CoreDataManager.shared.saveExpense(
+        let savedExpense = CoreDataManager.shared.saveExpense(
             title: title.trimmingCharacters(in: .whitespaces),
             amount: amount,
             date: selectedDate,
             type: selectedType,
             category: selectedCategory,
-            image: selectedImage
+            image: selectedImage,
+            currency: UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
         )
+
+        if UserDefaults.standard.bool(forKey: "cloudSyncEnabled"), let savedExpense = savedExpense {
+            FirestoreManager.shared.syncExpense(expense: savedExpense)
+        }
         
         titleCell.textField.text = ""
         amountCell.textField.text = ""

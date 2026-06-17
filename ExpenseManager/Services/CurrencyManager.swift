@@ -38,19 +38,30 @@ class CurrencyManager {
         }.resume()
     }
     
+    
+    //// MARK: - Convert to Base
+    func convertToBase(_ amount: Double, from sourceCurrency: String) -> Double {
+        if sourceCurrency == "PKR" { return amount }
+        let rate = exchangeRates[sourceCurrency] ?? 1.0
+        return amount / rate
+    }
+    
     // MARK: - Convert Amount
-    func convertAmount(_ amount: Double) -> Double {
+    func convertAmount(_ amount: Double, from sourceCurrency: String) -> Double {
+        let targetCode = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
         
-        let code = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
-        let rate = exchangeRates[code] ?? 1.0
+        if sourceCurrency == targetCode { return amount }
+    
+        let sourceToPKR = exchangeRates[sourceCurrency] != nil ? 1.0 / (exchangeRates[sourceCurrency] ?? 1.0) : 1.0
+        let pkrToTarget = exchangeRates[targetCode] ?? 1.0
         
-        return amount * rate
+        return amount * sourceToPKR * pkrToTarget
     }
     
     // MARK: - Currency Symbol
     func currencySymbol() -> String {
         
-        let code = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD"
+        let code = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
         
         switch code {
         case "USD": return "$"
@@ -58,7 +69,7 @@ class CurrencyManager {
         case "PKR": return "₨"
         case "INR": return "₹"
         case "AED": return "د.إ"
-        default: return "$"
+        default: return "₨"
         }
     }
 }

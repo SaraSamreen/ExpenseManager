@@ -16,19 +16,23 @@ class CoreDataManager {
     }()
     
     // MARK: - Save Expense
-    func saveExpense(title: String, amount: Double, date: Date, type: String, category: String, image: UIImage? = nil) {
+    @discardableResult
+    func saveExpense(title: String, amount: Double, date: Date, type: String, category: String, image: UIImage? = nil, currency: String) -> Expense? {
         let expense = Expense(context: context)
         expense.title = title
         expense.amount = amount
         expense.date = date
         expense.type = type
         expense.category = category
+        expense.currency = currency
         expense.image = image?.jpegData(compressionQuality: 0.7)
         
         do {
             try context.save()
+            return expense
         } catch {
             print("Error saving: \(error)")
+            return nil
         }
     }
     
@@ -54,6 +58,11 @@ class CoreDataManager {
         
         do {
             try context.save()
+        
+            if UserDefaults.standard.bool(forKey: "cloudSyncEnabled") {
+                FirestoreManager.shared.syncCategory(name: name, type: type)
+            }
+            
         } catch {
             print("Error saving category: \(error)")
         }
@@ -88,9 +97,16 @@ class CoreDataManager {
     
     // MARK: - Delete Expense
     func deleteExpense(_ expense: Expense) {
+        let firestoreID = expense.firestoreID
+        
         context.delete(expense)
         do {
             try context.save()
+            
+            // ✅ Also delete from Firestore if it was synced
+            if let firestoreID = firestoreID {
+                FirestoreManager.shared.deleteExpenseFromFirestore(documentID: firestoreID)
+            }
         } catch {
             print("Error deleting: \(error)")
         }
@@ -106,7 +122,8 @@ class CoreDataManager {
     }
     
     // MARK: - Save Goal
-    func saveGoal(title: String, amount: Double, deadline: Date, contributionType: String, icon: String) {
+    @discardableResult
+    func saveGoal(title: String, amount: Double, deadline: Date, contributionType: String, icon: String) -> Goal? {
         let goal = Goal(context: context)
         goal.title = title
         goal.amount = amount
@@ -117,8 +134,10 @@ class CoreDataManager {
         
         do {
             try context.save()
+            return goal
         } catch {
             print("Error saving goal: \(error)")
+            return nil
         }
     }
     
@@ -152,9 +171,15 @@ class CoreDataManager {
     
     // MARK: - Delete Goal
     func deleteGoal(_ goal: Goal) {
+        let firestoreID = goal.firestoreID
+        
         context.delete(goal)
         do {
             try context.save()
+            
+            if let firestoreID = firestoreID {
+                FirestoreManager.shared.deleteGoalFromFirestore(documentID: firestoreID)
+            }
         } catch {
             print("Error deleting goal: \(error)")
         }

@@ -58,14 +58,20 @@ class SignupViewController: UIViewController {
         
         showLoader()
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            self.hideLoader()
             if let error = error {
+                self.hideLoader()
                 self.showAlert(message: error.localizedDescription)
                 return
             }
-            self.navigateToHome()
-        }
-    }
+            
+            // ✅ Save username to Firebase Auth profile
+            let changeRequest = result?.user.createProfileChangeRequest()
+            changeRequest?.displayName = username
+            changeRequest?.commitChanges { error in
+                self.hideLoader()
+                self.navigateToHome()
+            }
+        }}
     
     // MARK: - Helpers
     func showLoader() {
@@ -111,4 +117,6 @@ class SignupViewController: UIViewController {
         textField.leftView = paddingView
         textField.leftViewMode = .always
     }
-}
+    }
+
+    

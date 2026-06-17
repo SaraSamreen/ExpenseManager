@@ -256,6 +256,19 @@ class GoalDetailViewController: UIViewController {
         goal.deadline = selectedDeadline
         goal.icon = CoreDataManager.shared.iconName(for: title)
         CoreDataManager.shared.saveContext()
+
+        // ✅ Also update Firestore if synced
+        if let firestoreID = goal.firestoreID {
+            FirestoreManager.shared.updateGoalInFirestore(
+                documentID: firestoreID,
+                title: title,
+                amount: amount,
+                deadline: selectedDeadline,
+                contributionType: selectedContributionType,
+                icon: goal.icon ?? "star.fill"
+            )
+        }
+
         onDismiss?()
         navigationController?.popViewController(animated: true)
     }

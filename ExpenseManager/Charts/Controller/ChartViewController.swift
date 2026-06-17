@@ -165,7 +165,8 @@ class ChartViewController: UIViewController {
         var categoryTotals: [String: Double] = [:]
         for item in data {
             let cat = (item.category?.isEmpty == false) ? item.category! : "Other"
-            categoryTotals[cat, default: 0] += item.amount
+            let convertedAmount = CurrencyManager.shared.convertAmount(item.amount, from: item.currency ?? "PKR")
+            categoryTotals[cat, default: 0] += convertedAmount
         }
         
         let total = categoryTotals.values.reduce(0, +)
@@ -271,7 +272,7 @@ class ChartViewController: UIViewController {
         label.font = UIFont.systemFont(ofSize: 14)
         
         let amountLabel = UILabel()
-        amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.0f", CurrencyManager.shared.convertAmount(amount)))"
+        amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", amount))"
         amountLabel.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
         amountLabel.textAlignment = .right
         

@@ -64,8 +64,13 @@ class DashboardViewController: UIViewController {
     
     func loadData() {
         let allExpenses = CoreDataManager.shared.fetchExpenses()
-        totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
-        totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
+           
+           totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) {
+               $0 + CurrencyManager.shared.convertAmount($1.amount, from: $1.currency ?? "PKR")
+           }
+           totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) {
+               $0 + CurrencyManager.shared.convertAmount($1.amount, from: $1.currency ?? "PKR")
+           }
         
         if selectedCardIndex == 0 {
             expenses = Array(allExpenses.filter { $0.type == "income" }.prefix(3))
@@ -108,7 +113,7 @@ extension DashboardViewController: UICollectionViewDelegate, UICollectionViewDat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ExpenseCardCell", for: indexPath) as! ExpenseCardCell
         cell.titleLabel.text = cards[indexPath.row]
-        cell.amountLabel.text = indexPath.row == 0 ? "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(totalIncome)))" : "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(totalExpense)))"
+        cell.amountLabel.text = indexPath.row == 0 ? "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", totalIncome))" : "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", totalExpense))"
         cell.configure(isSelected: selectedCardIndex == indexPath.row)
         return cell
     }
@@ -160,7 +165,7 @@ extension DashboardViewController: UITableViewDelegate, UITableViewDataSource {
         formatter.dateFormat = "dd MMM yyyy"
         cell.dateLabel.text = formatter.string(from: expense.date ?? Date())
         
-        cell.amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(expense.amount)))"
+        cell.amountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(expense.amount, from: expense.currency ?? "PKR")))"
 
         if expense.type == "income" {
             cell.amountLabel.textColor = .systemGreen

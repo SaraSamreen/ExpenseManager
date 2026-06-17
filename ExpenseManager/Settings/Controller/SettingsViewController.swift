@@ -5,6 +5,7 @@
 //  Created by Mac on 16/06/2026.
 //
 
+import FirebaseAuth
 import UIKit
 
 class SettingsViewController: UIViewController {
@@ -16,17 +17,24 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var cloudIconBack: UIView!
     @IBOutlet weak var cloudSwitch: UISwitch!
     @IBOutlet weak var currencyValueLabel: UILabel!
+    @IBOutlet weak var cloudSyncStatusLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let saved = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "USD"
+        let saved = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
         currencyValueLabel.text = "\(saved)"
+        
+        cloudSwitch.isOn = UserDefaults.standard.bool(forKey: "cloudSyncEnabled")
+        
+        if let user = Auth.auth().currentUser {
+            nameLabel.text = user.displayName ?? user.email ?? "User"
+        }
         
         setupUI()
     }
 
-    func setupUI() {
+   func setupUI() {
         // Profile image circle
         profileImageView.layer.cornerRadius = 50
         profileImageView.clipsToBounds = true
@@ -52,9 +60,25 @@ class SettingsViewController: UIViewController {
     }
 
     @IBAction func switchToggled(_ sender: UISwitch) {
-        // handle cloud sync toggle
+        UserDefaults.standard.set(sender.isOn, forKey: "cloudSyncEnabled")
+    
+        FirestoreManager.shared.saveSyncPreference(enabled: sender.isOn)
+        
+        if sender.isOn {
+            FirestoreManager.shared.syncAll()
+            showSyncAlert()
+            cloudSyncStatusLabel.text = "Enabled"
+        } else {
+            cloudSyncStatusLabel.text = "Disabled"
+        }
     }
-
+    
+    func showSyncAlert() {
+        let alert = UIAlertController(title: "Cloud Sync", message: "Your data is being synced to cloud!", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
     @IBAction func currencyTapped(_ sender: Any) {
         let currencies = [
             ("USD", "US Dollar"),
@@ -70,6 +94,7 @@ class SettingsViewController: UIViewController {
             alert.addAction(UIAlertAction(title: "\(code) - \(name)", style: .default) { [weak self] _ in
                 self?.currencyValueLabel.text = "\(code) (\(name))"
                 UserDefaults.standard.set(code, forKey: "selectedCurrency")
+                FirestoreManager.shared.saveCurrencyPreference(currency: code) 
             })
         }
         

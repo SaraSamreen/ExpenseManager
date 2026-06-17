@@ -59,9 +59,14 @@ class GoalsViewController: UIViewController {
     
     func loadData() {
         let allExpenses = CoreDataManager.shared.fetchExpenses()
-        let totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
-        let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
-        currentSavings = max(0, totalIncome - totalExpense)
+        
+        let totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        currentSavings = max(0, totalIncome - totalExpense)  // ✅ stays in PKR
         
         // This month's savings rate
         let calendar = Calendar.current
@@ -69,15 +74,22 @@ class GoalsViewController: UIViewController {
         let thisMonthExpenses = allExpenses.filter {
             calendar.isDate($0.date ?? now, equalTo: now, toGranularity: .month)
         }
-        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
-        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
-        monthlySavings = max(0, monthlyIncome - monthlyExpense)
+        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        monthlySavings = max(0, monthlyIncome - monthlyExpense)  // ✅ stays in PKR
         
-        savingsAmountLabel.text = "\(CurrencyManager.shared.currencySymbol()) \(String(format: "%.2f", CurrencyManager.shared.convertAmount(currentSavings)))"
+        // ✅ Convert only for display here
+        let symbol = CurrencyManager.shared.currencySymbol()
+        let displaySavings = CurrencyManager.shared.convertAmount(currentSavings, from: "PKR")
+        savingsAmountLabel.text = "\(symbol) \(String(format: "%.2f", displaySavings))"
+        
         goals = Array(CoreDataManager.shared.fetchGoals().prefix(3))
         tableView.reloadData()
     }
-    
     
     
     @IBAction func addGoalTapped(_ sender: UIButton) {

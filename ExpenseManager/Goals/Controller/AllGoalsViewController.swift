@@ -49,18 +49,26 @@ class AllGoalsViewController: UIViewController {
     
     func loadData() {
         let allExpenses = CoreDataManager.shared.fetchExpenses()
-        let totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
-        let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
+        
+        let totalIncome = allExpenses.filter { $0.type == "income" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        let totalExpense = allExpenses.filter { $0.type == "expense" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
         currentSavings = max(0, totalIncome - totalExpense)
         
-        // This month's savings rate
         let calendar = Calendar.current
         let now = Date()
         let thisMonthExpenses = allExpenses.filter {
             calendar.isDate($0.date ?? now, equalTo: now, toGranularity: .month)
         }
-        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) { $0 + $1.amount }
-        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) { $0 + $1.amount }
+        let monthlyIncome = thisMonthExpenses.filter { $0.type == "income" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
+        let monthlyExpense = thisMonthExpenses.filter { $0.type == "expense" }.reduce(0) {
+            $0 + CurrencyManager.shared.convertToBase($1.amount, from: $1.currency ?? "PKR")
+        }
         monthlySavings = max(0, monthlyIncome - monthlyExpense)
         
         goals = CoreDataManager.shared.fetchGoals()

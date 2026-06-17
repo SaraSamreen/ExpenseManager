@@ -130,12 +130,19 @@ class LoginViewController: UIViewController {
     }
     
     func navigateToHome() {
-        DispatchQueue.main.async {
-            let tabBar = self.storyboard?
-                .instantiateViewController(withIdentifier: "MainTabBarController")
-                as! UITabBarController
-            tabBar.modalPresentationStyle = .fullScreen
-            self.present(tabBar, animated: true)
+        FirestoreManager.shared.fetchSyncPreference { enabled, currency in
+            UserDefaults.standard.set(enabled, forKey: "cloudSyncEnabled")
+            UserDefaults.standard.set(currency, forKey: "selectedCurrency")
+            
+            FirestoreManager.shared.fetchAndSyncFromFirestore {
+                DispatchQueue.main.async {
+                    let tabBar = self.storyboard?
+                        .instantiateViewController(withIdentifier: "MainTabBarController")
+                        as! UITabBarController
+                    tabBar.modalPresentationStyle = .fullScreen
+                    self.present(tabBar, animated: true)
+                }
+            }
         }
     }
     
@@ -185,6 +192,23 @@ extension LoginViewController: ASAuthorizationControllerDelegate {
                     self.showAlert(message: error.localizedDescription)
                     return
                 }
+                
+                // ✅ Save name from Apple (only available on first sign in)
+                if let fullName = appleIDCredential.fullName {
+                    let displayName = [fullName.givenName, fullName.familyName]
+                        .compactMap { $0 }
+                        .joined(separator: " ")
+                    
+                    if !displayName.isEmpty {
+                        let changeRequest = result?.user.createProfileChangeRequest()
+                        changeRequest?.displayName = displayName
+                        changeRequest?.commitChanges { _ in
+                            self.navigateToHome()
+                        }
+                        return
+                    }
+                }
+                
                 self.navigateToHome()
             }
         }
