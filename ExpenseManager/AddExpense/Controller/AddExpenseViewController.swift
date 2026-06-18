@@ -5,10 +5,13 @@
 //  Created by Mac on 02/06/2026.
 //
 
+import GoogleMobileAds
 import UIKit
 import UniformTypeIdentifiers
 
 class AddExpenseViewController: UIViewController {
+    
+    var interstitialAd: InterstitialAd?
     
     @IBOutlet weak var incomeBtn: UIButton!
     @IBOutlet weak var expenseBtn: UIButton!
@@ -35,6 +38,22 @@ class AddExpenseViewController: UIViewController {
         expenseBtn.clipsToBounds = true
         loadCategories()
     
+        loadInterstitialAd()
+    }
+    
+    func loadInterstitialAd() {
+        let request = Request()
+        InterstitialAd.load(
+            with: "ca-app-pub-3940256099942544/4411468910",
+            request: request
+        ) { [weak self] ad, error in
+            if let error = error {
+                print("DEBUG: Interstitial failed to load — \(error.localizedDescription)")
+                return
+            }
+            self?.interstitialAd = ad
+            print("DEBUG: Interstitial loaded successfully ✅")
+        }
     }
     
     func loadCategories() {
@@ -278,8 +297,33 @@ extension AddExpenseViewController {
         selectedImage = nil
         
         tableView.reloadData()
+        
+        incrementSaveCountAndShowAdIfNeeded()
         showAlert(message: selectedType == "income" ? "Income added successfully!" : "Expense added successfully!")
     }
+    
+    func incrementSaveCountAndShowAdIfNeeded() {
+        var saveCount = UserDefaults.standard.integer(forKey: "expenseSaveCount")
+        saveCount += 1
+        UserDefaults.standard.set(saveCount, forKey: "expenseSaveCount")
+        
+        if saveCount % 3 == 0 {
+            showInterstitialAd()
+        }
+    }
+
+    func showInterstitialAd() {
+        guard let interstitialAd = interstitialAd else {
+            print("DEBUG: Interstitial not ready yet, skipping this time")
+            return
+        }
+        
+        interstitialAd.present(from: self)
+        
+        // Load the next one right away, so it's ready for the next 3rd save
+        loadInterstitialAd()
+    }
+    
 
     func showAlert(message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)

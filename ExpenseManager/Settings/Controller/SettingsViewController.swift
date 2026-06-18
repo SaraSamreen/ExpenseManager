@@ -5,10 +5,13 @@
 //  Created by Mac on 16/06/2026.
 //
 
+import GoogleMobileAds
 import FirebaseAuth
 import UIKit
 
 class SettingsViewController: UIViewController {
+    
+    var rewardedAd: RewardedAd?
 
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
@@ -19,6 +22,9 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var currencyValueLabel: UILabel!
     @IBOutlet weak var cloudSyncStatusLabel: UILabel!
     @IBOutlet weak var logoutButton: UIButton!
+    @IBOutlet weak var downloadIconBack: UIView!
+    @IBOutlet weak var downloadentrieslbl: UILabel!
+   
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,6 +39,22 @@ class SettingsViewController: UIViewController {
         }
         
         setupUI()
+        loadRewardedAd()
+    }
+    
+    func loadRewardedAd() {
+        let request = Request()
+        RewardedAd.load(
+            with: "ca-app-pub-3940256099942544/1712485313", // TEST ID for now
+            request: request
+        ) { [weak self] ad, error in
+            if let error = error {
+                print("DEBUG: Rewarded ad failed to load — \(error.localizedDescription)")
+                return
+            }
+            self?.rewardedAd = ad
+            print("DEBUG: Rewarded ad loaded successfully ✅")
+        }
     }
 
    func setupUI() {
@@ -127,12 +149,147 @@ class SettingsViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    @IBAction func exportTapped(_ sender: Any) {
+        
+        let alert = UIAlertController(
+            title: "Export Data",
+            message: "What do you want to export?",
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(title: "Expenses", style: .default, handler: { [weak self] _ in
+            self?.requestRewardThenExport(type: "expense")
+        }))
+
+        alert.addAction(UIAlertAction(title: "Income", style: .default, handler: { [weak self] _ in
+            self?.requestRewardThenExport(type: "income")
+        }))
+
+        alert.addAction(UIAlertAction(title: "Both", style: .default, handler: { [weak self] _ in
+            self?.requestRewardThenExport(type: "both")
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        present(alert, animated: true)
+    }
+    
+    func requestRewardThenExport(type: String) {
+        guard let rewardedAd = rewardedAd else {
+            let alert = UIAlertController(
+                title: "Ad Not Ready",
+                message: "Please try again in a moment.",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+            
+            loadRewardedAd() // try loading again for next time
+            return
+        }
+        
+        rewardedAd.present(from: self) { [weak self] in
+            let reward = rewardedAd.adReward
+            print("DEBUG: User earned reward: \(reward.amount) \(reward.type)")
+            
+            self?.exportCSV(type: type)
+            self?.loadRewardedAd() // load the next one for next time
+        }
+    }
+    
+    
+    func exportCSV(type: String) {
+
+        var expenses: [Expense] = []
+
+        switch type {
+        case "expense":
+            expenses = CoreDataManager.shared.fetchExpenses()
+
+        case "income":
+            expenses = CoreDataManager.shared.fetchIncome()
+
+        case "both":
+            expenses = CoreDataManager.shared.fetchExpenses()
+            expenses += CoreDataManager.shared.fetchIncome()
+
+        default:
+            break
+        }
+
+        guard !expenses.isEmpty else {
+
+            let alert = UIAlertController(
+                title: "No Data",
+                message: "There are no entries to export.",
+                preferredStyle: .alert
+            )
+
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+
+            return
+        }
+
+        var csvText = "Title,Amount,Type,Category,Currency,Date\n"
+
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+
+        for expense in expenses {
+
+            let title = expense.title ?? ""
+            let amount = String(expense.amount)
+            let type = expense.type ?? ""
+            let category = expense.category ?? ""
+            let currency = expense.currency ?? ""
+            let date = formatter.string(from: expense.date ?? Date())
+
+            let row = "\"\(title)\",\(amount),\"\(type)\",\"\(category)\",\"\(currency)\",\"\(date)\"\n"
+
+            csvText.append(row)
+        }
+
+        let fileName = "ExpenseReport.csv"
+
+        let path = FileManager.default.temporaryDirectory
+            .appendingPathComponent(fileName)
+
+        do {
+
+            try csvText.write(
+                to: path,
+                atomically: true,
+                encoding: .utf8
+            )
+
+            let activityVC = UIActivityViewController(
+                activityItems: [path],
+                applicationActivities: nil
+            )
+
+            if let popover = activityVC.popoverPresentationController {
+                popover.sourceView = self.view
+            }
+
+            present(activityVC, animated: true)
+
+        } catch {
+
+            let alert = UIAlertController(
+                title: "Export Failed",
+                message: error.localizedDescription,
+                preferredStyle: .alert
+            )
+
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true)
+        }
+    }
+    
     func performLogout() {
         do {
             try Auth.auth().signOut()
-            
-            UserDefaults.standard.removeObject(forKey: "selectedCurrency")
-            UserDefaults.standard.removeObject(forKey: "cloudSyncEnabled")
             
             if let storyboard = self.storyboard {
                 let loginVC = storyboard.instantiateViewController(withIdentifier: "LoginViewController")

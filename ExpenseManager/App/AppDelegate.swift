@@ -5,6 +5,7 @@
 //  Created by Mac on 21/05/2026.
 //
 
+import GoogleMobileAds
 import CoreData
 import UIKit
 import Firebase
@@ -22,6 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
                 let config = GIDConfiguration(clientID: clientID)
                 GIDSignIn.sharedInstance.configuration = config
+        
+        MobileAds.shared.start(completionHandler: { _ in })
         
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.enableAutoToolbar = true

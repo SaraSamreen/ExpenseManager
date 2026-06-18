@@ -50,21 +50,41 @@ class CoreDataManager {
         }
     }
     
+    func fetchIncome() -> [Expense] {
+        let request: NSFetchRequest<Expense> = Expense.fetchRequest()
+        request.predicate = NSPredicate(format: "type == %@", "income")
+        
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "date", ascending: false)
+        ]
+        
+        do {
+            return try context.fetch(request)
+        } catch {
+            print("Error fetching income: \(error)")
+            return []
+        }
+    }
+    
     // MARK: - Save Category
-    func saveCategory(name: String, type: String) {
+    @discardableResult
+    func saveCategory(name: String, type: String, isDefault: Bool = false) -> ExpenseCategory? {
         let category = ExpenseCategory(context: context)
         category.name = name
         category.type = type
+        category.isDefault = isDefault
         
         do {
             try context.save()
         
-            if UserDefaults.standard.bool(forKey: "cloudSyncEnabled") {
-                FirestoreManager.shared.syncCategory(name: name, type: type)
+            if !isDefault, UserDefaults.standard.bool(forKey: "cloudSyncEnabled") {
+                FirestoreManager.shared.syncCategory(category: category)
             }
             
+            return category
         } catch {
             print("Error saving category: \(error)")
+            return nil
         }
     }
     
@@ -82,16 +102,28 @@ class CoreDataManager {
         }
     }
     
+    // MARK: - Fetch All Categories
+        func fetchAllCategories() -> [ExpenseCategory] {
+            let request: NSFetchRequest<ExpenseCategory> = ExpenseCategory.fetchRequest()
+            
+            do {
+                return try context.fetch(request)
+            } catch {
+                print("Error fetching categories: \(error)")
+                return []
+            }
+        }
+    
     // MARK: - Default Categories
     func setupDefaultCategories() {
         let incomeDefaults = ["Salary", "Rewards"]
         let expenseDefaults = ["Food", "Transport", "Shopping"]
         
         if fetchCategories(type: "income").isEmpty {
-            incomeDefaults.forEach { saveCategory(name: $0, type: "income") }
+            incomeDefaults.forEach { saveCategory(name: $0, type: "income", isDefault: true) }
         }
         if fetchCategories(type: "expense").isEmpty {
-            expenseDefaults.forEach { saveCategory(name: $0, type: "expense") }
+            expenseDefaults.forEach { saveCategory(name: $0, type: "expense", isDefault: true) }
         }
     }
     
@@ -103,7 +135,7 @@ class CoreDataManager {
         do {
             try context.save()
             
-            // ✅ Also delete from Firestore if it was synced
+            // Also delete from Firestore if it was synced
             if let firestoreID = firestoreID {
                 FirestoreManager.shared.deleteExpenseFromFirestore(documentID: firestoreID)
             }
@@ -182,6 +214,26 @@ class CoreDataManager {
             }
         } catch {
             print("Error deleting goal: \(error)")
+        }
+    }
+    
+    // MARK: - Delete Expense 
+    func deleteExpenseLocalOnly(_ expense: Expense) {
+        context.delete(expense)
+        do {
+            try context.save()
+        } catch {
+            print("Error deleting expense locally: \(error)")
+        }
+    }
+
+    // MARK: - Delete Goal (LOCAL ONLY — does not touch Firestore)
+    func deleteGoalLocalOnly(_ goal: Goal) {
+        context.delete(goal)
+        do {
+            try context.save()
+        } catch {
+            print("Error deleting goal locally: \(error)")
         }
     }
 }

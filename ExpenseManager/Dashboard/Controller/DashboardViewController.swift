@@ -5,10 +5,13 @@
 //  Created by Mac on 01/06/2026.
 //
 
+import GoogleMobileAds
 import UIKit
 import FirebaseAuth
 
 class DashboardViewController: UIViewController {
+    
+    var bannerView: BannerView!
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
@@ -49,6 +52,24 @@ class DashboardViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsSelection = false
+        
+        setupBannerAd()
+    }
+    
+    func setupBannerAd() {
+        bannerView = BannerView(adSize: AdSizeBanner)
+        bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+        bannerView.rootViewController = self
+        
+        bannerView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bannerView)
+        
+        NSLayoutConstraint.activate([
+            bannerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            bannerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+        
+        bannerView.load(Request())
     }
     
     override func viewWillAppear(_ animated: Bool) {

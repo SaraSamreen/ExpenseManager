@@ -64,7 +64,7 @@ class SignupViewController: UIViewController {
                 return
             }
             
-            // ✅ Save username to Firebase Auth profile
+            // Save username to Firebase Auth profile
             let changeRequest = result?.user.createProfileChangeRequest()
             changeRequest?.displayName = username
             changeRequest?.commitChanges { error in

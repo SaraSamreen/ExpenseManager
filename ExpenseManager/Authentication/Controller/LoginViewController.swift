@@ -134,15 +134,23 @@ class LoginViewController: UIViewController {
             UserDefaults.standard.set(enabled, forKey: "cloudSyncEnabled")
             UserDefaults.standard.set(currency, forKey: "selectedCurrency")
             
-            FirestoreManager.shared.fetchAndSyncFromFirestore {
-                DispatchQueue.main.async {
-                    let tabBar = self.storyboard?
-                        .instantiateViewController(withIdentifier: "MainTabBarController")
-                        as! UITabBarController
-                    tabBar.modalPresentationStyle = .fullScreen
-                    self.present(tabBar, animated: true)
+            if enabled {
+                FirestoreManager.shared.fetchAndSyncFromFirestore {
+                    self.presentMainTabBar()
                 }
+            } else {
+                self.presentMainTabBar()
             }
+        }
+    }
+
+    func presentMainTabBar() {
+        DispatchQueue.main.async {
+            let tabBar = self.storyboard?
+                .instantiateViewController(withIdentifier: "MainTabBarController")
+                as! UITabBarController
+            tabBar.modalPresentationStyle = .fullScreen
+            self.present(tabBar, animated: true)
         }
     }
     

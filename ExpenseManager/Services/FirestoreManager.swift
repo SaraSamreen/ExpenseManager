@@ -158,24 +158,52 @@ class FirestoreManager {
           .collection("goals").document(documentID).delete()
     }
     
-    // MARK: - Sync Category to Firestore
-    func syncCategory(name: String, type: String) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
+    // MARK: - Sync ALL Categories to Firestore
+        func syncCategories() {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
+            let categories = CoreDataManager.shared.fetchAllCategories()
+            
+            for category in categories {
+                if category.firestoreID != nil { continue }
+                
+                let data: [String: Any] = [
+                    "name": category.name ?? "",
+                    "type": category.type ?? ""
+                ]
+                
+                let docRef = db.collection("users").document(userID)
+                    .collection("categories").addDocument(data: data)
+                
+                category.firestoreID = docRef.documentID
+            }
+            
+            CoreDataManager.shared.saveContext()
+        }
         
-        let data: [String: Any] = [
-            "name": name,
-            "type": type
-        ]
-        
-        db.collection("users").document(userID)
-          .collection("categories").addDocument(data: data)
-    }
+        // MARK: - Sync Single Category
+        func syncCategory(category: ExpenseCategory) {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
+            
+            if category.firestoreID != nil { return }
+            
+            let data: [String: Any] = [
+                "name": category.name ?? "",
+                "type": category.type ?? ""
+            ]
+            
+            let docRef = db.collection("users").document(userID)
+                .collection("categories").addDocument(data: data)
+            
+            category.firestoreID = docRef.documentID
+            CoreDataManager.shared.saveContext()
+        }
     
     
     // MARK: - Sync All
     func syncAll() {
         syncExpenses()
         syncGoals()
+        syncCategories()
     }
     
     // MARK: - Sync User Preferences to Firestore
@@ -199,100 +227,118 @@ class FirestoreManager {
     }
     
     // MARK: - Fetch from Firestore and restore to CoreData
-    func fetchAndSyncFromFirestore(completion: @escaping () -> Void) {
-        guard let userID = Auth.auth().currentUser?.uid else { return }
-        
-        let group = DispatchGroup()
-        
-        
-        
-        // Fetch expenses
-        group.enter()
-        db.collection("users").document(userID)
-          .collection("expenses").getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { group.leave(); return }
+        func fetchAndSyncFromFirestore(completion: @escaping () -> Void) {
+            guard let userID = Auth.auth().currentUser?.uid else { return }
             
-            let existing = CoreDataManager.shared.fetchExpenses()
-            existing.forEach { CoreDataManager.shared.deleteExpense($0) }
+            let group = DispatchGroup()
             
-            for doc in documents {
-                let data = doc.data()
-                let title = data["title"] as? String ?? ""
-                let amount = data["amount"] as? Double ?? 0
-                let type = data["type"] as? String ?? ""
-                let category = data["category"] as? String ?? ""
-                let currency = data["currency"] as? String ?? "PKR"
-                let timestamp = data["date"] as? Timestamp
-                let date = timestamp?.dateValue() ?? Date()
+            // Fetch expenses
+            group.enter()
+            db.collection("users").document(userID)
+              .collection("expenses").getDocuments { snapshot, error in
+                defer { group.leave() }
                 
-                let savedExpense = CoreDataManager.shared.saveExpense(
-                    title: title,
-                    amount: amount,
-                    date: date,
-                    type: type,
-                    category: category,
-                    currency: currency
-                )
-                
-                savedExpense?.firestoreID = doc.documentID
-            }
-            
-            CoreDataManager.shared.saveContext()
-            group.leave()
-        }
-        
-        // Fetch categories
-        group.enter()
-        db.collection("users").document(userID)
-          .collection("categories").getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { group.leave(); return }
-            
-            for doc in documents {
-                let data = doc.data()
-                let name = data["name"] as? String ?? ""
-                let type = data["type"] as? String ?? ""
-                if !CoreDataManager.shared.fetchCategories(type: type).contains(name) {
-                    CoreDataManager.shared.saveCategory(name: name, type: type)
+                if let error = error {
+                    print("Error fetching expenses from Firestore: \(error)")
+                    return
                 }
-            }
-            group.leave()
-        }
-        
-        // Fetch goals
-        group.enter()
-        db.collection("users").document(userID)
-          .collection("goals").getDocuments { snapshot, error in
-            guard let documents = snapshot?.documents else { group.leave(); return }
-            
-            let existingGoals = CoreDataManager.shared.fetchGoals()
-            existingGoals.forEach { CoreDataManager.shared.deleteGoal($0) }
-            
-            for doc in documents {
-                let data = doc.data()
-                let title = data["title"] as? String ?? ""
-                let amount = data["amount"] as? Double ?? 0
-                let contributionType = data["contributionType"] as? String ?? "Monthly"
-                let icon = data["icon"] as? String ?? "star.fill"
-                let timestamp = data["deadline"] as? Timestamp
-                let deadline = timestamp?.dateValue() ?? Date()
                 
-                let savedGoal = CoreDataManager.shared.saveGoal(
-                    title: title,
-                    amount: amount,
-                    deadline: deadline,
-                    contributionType: contributionType,
-                    icon: icon
-                )
+                guard let documents = snapshot?.documents else { return }
                 
-                savedGoal?.firestoreID = doc.documentID
+                  let existing = CoreDataManager.shared.fetchExpenses()
+                  existing.forEach { CoreDataManager.shared.deleteExpenseLocalOnly($0) }
+                
+                for doc in documents {
+                    let data = doc.data()
+                    let title = data["title"] as? String ?? ""
+                    let amount = data["amount"] as? Double ?? 0
+                    let type = data["type"] as? String ?? ""
+                    let category = data["category"] as? String ?? ""
+                    let currency = data["currency"] as? String ?? "PKR"
+                    let timestamp = data["date"] as? Timestamp
+                    let date = timestamp?.dateValue() ?? Date()
+                    
+                    let savedExpense = CoreDataManager.shared.saveExpense(
+                        title: title,
+                        amount: amount,
+                        date: date,
+                        type: type,
+                        category: category,
+                        currency: currency
+                    )
+                    
+                    savedExpense?.firestoreID = doc.documentID
+                }
+                
+                CoreDataManager.shared.saveContext()
             }
             
-            CoreDataManager.shared.saveContext()
-            group.leave()
+            // Fetch categories
+            group.enter()
+            db.collection("users").document(userID)
+              .collection("categories").getDocuments { snapshot, error in
+                defer { group.leave() }
+                
+                if let error = error {
+                    print("Error fetching categories from Firestore: \(error)")
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else { return }
+                
+                for doc in documents {
+                    let data = doc.data()
+                    let name = data["name"] as? String ?? ""
+                    let type = data["type"] as? String ?? ""
+                    if !CoreDataManager.shared.fetchCategories(type: type).contains(name) {
+                        let saved = CoreDataManager.shared.saveCategory(name: name, type: type)
+                        saved?.firestoreID = doc.documentID
+                    }
+                }
+                CoreDataManager.shared.saveContext()
+            }
+            
+            // Fetch goals
+            group.enter()
+            db.collection("users").document(userID)
+              .collection("goals").getDocuments { snapshot, error in
+                defer { group.leave() }
+                
+                if let error = error {
+                    print("Error fetching goals from Firestore: \(error)")
+                    return
+                }
+                
+                guard let documents = snapshot?.documents else { return }
+                
+                  let existingGoals = CoreDataManager.shared.fetchGoals()
+                  existingGoals.forEach { CoreDataManager.shared.deleteGoalLocalOnly($0) }
+                
+                for doc in documents {
+                    let data = doc.data()
+                    let title = data["title"] as? String ?? ""
+                    let amount = data["amount"] as? Double ?? 0
+                    let contributionType = data["contributionType"] as? String ?? "Monthly"
+                    let icon = data["icon"] as? String ?? "star.fill"
+                    let timestamp = data["deadline"] as? Timestamp
+                    let deadline = timestamp?.dateValue() ?? Date()
+                    
+                    let savedGoal = CoreDataManager.shared.saveGoal(
+                        title: title,
+                        amount: amount,
+                        deadline: deadline,
+                        contributionType: contributionType,
+                        icon: icon
+                    )
+                    
+                    savedGoal?.firestoreID = doc.documentID
+                }
+                
+                CoreDataManager.shared.saveContext()
+            }
+            
+            group.notify(queue: .main) {
+                completion()
+            }
         }
-        
-        group.notify(queue: .main) {
-            completion()
-        }
-    }
 }
