@@ -30,14 +30,10 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
         loadNativeAd()
     }
-    func adLoader(_ adLoader: AdLoader,
-                  didFailToReceiveAdWithError error: Error) {
-        print("Failed to load ad: \(error.localizedDescription)")
-    }
     
     func loadNativeAd() {
         adLoader = AdLoader(
-            adUnitID: "ca-app-pub-3940256099942544/3986624511", // TEST ID for now
+            adUnitID: "ca-app-pub-3940256099942544/3986624511",
             rootViewController: self,
             adTypes: [.native],
             options: nil
@@ -46,11 +42,14 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         adLoader.load(Request())
     }
     
+    func adLoader(_ adLoader: AdLoader,
+                  didFailToReceiveAdWithError error: Error) {
+        print("Failed to load ad: \(error.localizedDescription)")
+    }
+    
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         self.nativeAd = nativeAd
-        print("DEBUG: Native ad loaded ✅")
-        
-        // Reload the table's header now that we have ad content
+        print("DEBUG: Native ad loaded ")
         tableView.tableHeaderView = makeNativeAdHeaderView()
     }
     
@@ -59,6 +58,8 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         loadData()
         showEmptyStateIfNeeded()
     }
+    
+    //UI FOR THE NATIVE AD
     
     func makeNativeAdHeaderView() -> UIView? {
         guard let nativeAd = nativeAd else { return nil }
@@ -103,11 +104,11 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         ctaButton.setTitleColor(.white, for: .normal)
         ctaButton.layer.cornerRadius = 8
         ctaButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
-        ctaButton.isUserInteractionEnabled = false // AdMob handles taps via the adView itself
+        ctaButton.isUserInteractionEnabled = false
         adView.addSubview(ctaButton)
         adView.callToActionView = ctaButton
         
-        // "Ad" label (required by Google's policy — must be visibly labeled)
+        // "Ad" label
         let adBadge = UILabel()
         adBadge.translatesAutoresizingMaskIntoConstraints = false
         adBadge.text = "Ad"
@@ -118,6 +119,10 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         adBadge.layer.cornerRadius = 3
         adBadge.layer.masksToBounds = true
         adView.addSubview(adBadge)
+
+        let adChoicesView = AdChoicesView()
+        adChoicesView.translatesAutoresizingMaskIntoConstraints = false
+        adView.addSubview(adChoicesView)
         
         NSLayoutConstraint.activate([
             iconImageView.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 12),
@@ -125,10 +130,15 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
             iconImageView.widthAnchor.constraint(equalToConstant: 40),
             iconImageView.heightAnchor.constraint(equalToConstant: 40),
             
-            adBadge.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 12),
+            adChoicesView.topAnchor.constraint(equalTo: adView.topAnchor, constant: 4),
+            adChoicesView.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -4),
+            adChoicesView.widthAnchor.constraint(equalToConstant: 30),
+            adChoicesView.heightAnchor.constraint(equalToConstant: 30),
+            
             adBadge.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 4),
-            adBadge.widthAnchor.constraint(equalToConstant: 24),
-            adBadge.heightAnchor.constraint(equalToConstant: 14),
+            adBadge.centerXAnchor.constraint(equalTo: iconImageView.centerXAnchor),
+            adBadge.widthAnchor.constraint(equalToConstant: 30),
+            adBadge.heightAnchor.constraint(equalToConstant: 16),
             
             headlineLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 10),
             headlineLabel.topAnchor.constraint(equalTo: adView.topAnchor, constant: 12),
@@ -144,6 +154,8 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
             ctaButton.heightAnchor.constraint(equalToConstant: 32)
         ])
         
+        adView.adChoicesView = adChoicesView
+        adView.layoutIfNeeded()
         adView.nativeAd = nativeAd
         
         return adView

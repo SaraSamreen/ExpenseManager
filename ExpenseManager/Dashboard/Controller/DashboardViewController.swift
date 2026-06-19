@@ -1,5 +1,5 @@
 //
-//  HomeViewController.swift
+//  DashboardViewController.swift
 //  ExpenseManager
 //
 //  Created by Mac on 01/06/2026.
@@ -65,7 +65,8 @@ class DashboardViewController: UIViewController {
         view.addSubview(bannerView)
         
         NSLayoutConstraint.activate([
-            bannerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            bannerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bannerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bannerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
         

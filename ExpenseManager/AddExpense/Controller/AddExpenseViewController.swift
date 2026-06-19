@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 
 class AddExpenseViewController: UIViewController {
     
+    var pendingMessage: String? = nil
     var interstitialAd: InterstitialAd?
     
     @IBOutlet weak var incomeBtn: UIButton!
@@ -41,6 +42,7 @@ class AddExpenseViewController: UIViewController {
         loadInterstitialAd()
     }
     
+    
     func loadInterstitialAd() {
         let request = Request()
         InterstitialAd.load(
@@ -52,7 +54,7 @@ class AddExpenseViewController: UIViewController {
                 return
             }
             self?.interstitialAd = ad
-            print("DEBUG: Interstitial loaded successfully ✅")
+            print("DEBUG: Interstitial loaded successfully")
         }
     }
     
@@ -298,8 +300,8 @@ extension AddExpenseViewController {
         
         tableView.reloadData()
         
+        pendingMessage = selectedType == "income" ? "Income added successfully!" : "Expense added successfully!"
         incrementSaveCountAndShowAdIfNeeded()
-        showAlert(message: selectedType == "income" ? "Income added successfully!" : "Expense added successfully!")
     }
     
     func incrementSaveCountAndShowAdIfNeeded() {
@@ -307,23 +309,16 @@ extension AddExpenseViewController {
         saveCount += 1
         UserDefaults.standard.set(saveCount, forKey: "expenseSaveCount")
         
-        if saveCount % 3 == 0 {
-            showInterstitialAd()
+        if saveCount % 3 == 0, let interstitialAd = interstitialAd {
+            interstitialAd.fullScreenContentDelegate = self
+            interstitialAd.present(from: self)
+        } else {
+            if let msg = pendingMessage {
+                pendingMessage = nil
+                showAlert(message: msg)
+            }
         }
     }
-
-    func showInterstitialAd() {
-        guard let interstitialAd = interstitialAd else {
-            print("DEBUG: Interstitial not ready yet, skipping this time")
-            return
-        }
-        
-        interstitialAd.present(from: self)
-        
-        // Load the next one right away, so it's ready for the next 3rd save
-        loadInterstitialAd()
-    }
-    
 
     func showAlert(message: String) {
         let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
@@ -331,6 +326,17 @@ extension AddExpenseViewController {
         present(alert, animated: true)
     }
 }
+
+
+    extension AddExpenseViewController: FullScreenContentDelegate {
+        func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+            loadInterstitialAd()
+            if let msg = pendingMessage {
+                pendingMessage = nil
+                showAlert(message: msg)
+            }
+        }
+    }
 
 // MARK: - Image Picker
 extension AddExpenseViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
