@@ -26,6 +26,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         MobileAds.shared.start(completionHandler: { _ in })
         
+        AppOpenAdManager.shared.loadAd()
+        
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.enableAutoToolbar = true
         IQKeyboardManager.shared.resignOnTouchOutside = true

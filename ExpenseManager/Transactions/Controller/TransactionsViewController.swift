@@ -1,12 +1,9 @@
 
-
-import GoogleMobileAds
 import UIKit
 
-class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLoaderDelegate {
+class TransactionsViewController: UIViewController {
     
-    var nativeAd: NativeAd?
-    var adLoader: AdLoader!
+ 
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -28,29 +25,6 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         
         tableView.backgroundColor = UIColor.systemGray6
         tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 8, right: 0)
-        loadNativeAd()
-    }
-    
-    func loadNativeAd() {
-        adLoader = AdLoader(
-            adUnitID: "ca-app-pub-3940256099942544/3986624511",
-            rootViewController: self,
-            adTypes: [.native],
-            options: nil
-        )
-        adLoader.delegate = self
-        adLoader.load(Request())
-    }
-    
-    func adLoader(_ adLoader: AdLoader,
-                  didFailToReceiveAdWithError error: Error) {
-        print("Failed to load ad: \(error.localizedDescription)")
-    }
-    
-    func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
-        self.nativeAd = nativeAd
-        print("DEBUG: Native ad loaded ")
-        tableView.tableHeaderView = makeNativeAdHeaderView()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -59,107 +33,6 @@ class TransactionsViewController: UIViewController, NativeAdLoaderDelegate, AdLo
         showEmptyStateIfNeeded()
     }
     
-    //UI FOR THE NATIVE AD
-    
-    func makeNativeAdHeaderView() -> UIView? {
-        guard let nativeAd = nativeAd else { return nil }
-        
-        let adView = NativeAdView(frame: CGRect(x: 0, y: 0, width: tableView.frame.width, height: 120))
-        adView.backgroundColor = UIColor(white: 0.93, alpha: 1)
-        adView.layer.cornerRadius = 12
-        adView.layer.masksToBounds = true
-        
-        // Icon
-        let iconImageView = UIImageView()
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        iconImageView.image = nativeAd.icon?.image
-        iconImageView.layer.cornerRadius = 8
-        iconImageView.clipsToBounds = true
-        adView.addSubview(iconImageView)
-        adView.iconView = iconImageView
-        
-        // Headline
-        let headlineLabel = UILabel()
-        headlineLabel.translatesAutoresizingMaskIntoConstraints = false
-        headlineLabel.text = nativeAd.headline
-        headlineLabel.font = UIFont.boldSystemFont(ofSize: 15)
-        adView.addSubview(headlineLabel)
-        adView.headlineView = headlineLabel
-        
-        // Body
-        let bodyLabel = UILabel()
-        bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.text = nativeAd.body
-        bodyLabel.font = UIFont.systemFont(ofSize: 13)
-        bodyLabel.textColor = .gray
-        bodyLabel.numberOfLines = 2
-        adView.addSubview(bodyLabel)
-        adView.bodyView = bodyLabel
-        
-        // Call to action button
-        let ctaButton = UIButton(type: .system)
-        ctaButton.translatesAutoresizingMaskIntoConstraints = false
-        ctaButton.setTitle(nativeAd.callToAction, for: .normal)
-        ctaButton.backgroundColor = .systemBlue
-        ctaButton.setTitleColor(.white, for: .normal)
-        ctaButton.layer.cornerRadius = 8
-        ctaButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
-        ctaButton.isUserInteractionEnabled = false
-        adView.addSubview(ctaButton)
-        adView.callToActionView = ctaButton
-        
-        // "Ad" label
-        let adBadge = UILabel()
-        adBadge.translatesAutoresizingMaskIntoConstraints = false
-        adBadge.text = "Ad"
-        adBadge.font = UIFont.boldSystemFont(ofSize: 10)
-        adBadge.textColor = .white
-        adBadge.backgroundColor = .systemOrange
-        adBadge.textAlignment = .center
-        adBadge.layer.cornerRadius = 3
-        adBadge.layer.masksToBounds = true
-        adView.addSubview(adBadge)
-
-        let adChoicesView = AdChoicesView()
-        adChoicesView.translatesAutoresizingMaskIntoConstraints = false
-        adView.addSubview(adChoicesView)
-        
-        NSLayoutConstraint.activate([
-            iconImageView.leadingAnchor.constraint(equalTo: adView.leadingAnchor, constant: 12),
-            iconImageView.topAnchor.constraint(equalTo: adView.topAnchor, constant: 12),
-            iconImageView.widthAnchor.constraint(equalToConstant: 40),
-            iconImageView.heightAnchor.constraint(equalToConstant: 40),
-            
-            adChoicesView.topAnchor.constraint(equalTo: adView.topAnchor, constant: 4),
-            adChoicesView.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -4),
-            adChoicesView.widthAnchor.constraint(equalToConstant: 30),
-            adChoicesView.heightAnchor.constraint(equalToConstant: 30),
-            
-            adBadge.topAnchor.constraint(equalTo: iconImageView.bottomAnchor, constant: 4),
-            adBadge.centerXAnchor.constraint(equalTo: iconImageView.centerXAnchor),
-            adBadge.widthAnchor.constraint(equalToConstant: 30),
-            adBadge.heightAnchor.constraint(equalToConstant: 16),
-            
-            headlineLabel.leadingAnchor.constraint(equalTo: iconImageView.trailingAnchor, constant: 10),
-            headlineLabel.topAnchor.constraint(equalTo: adView.topAnchor, constant: 12),
-            headlineLabel.trailingAnchor.constraint(equalTo: ctaButton.leadingAnchor, constant: -10),
-            
-            bodyLabel.leadingAnchor.constraint(equalTo: headlineLabel.leadingAnchor),
-            bodyLabel.topAnchor.constraint(equalTo: headlineLabel.bottomAnchor, constant: 4),
-            bodyLabel.trailingAnchor.constraint(equalTo: headlineLabel.trailingAnchor),
-            
-            ctaButton.trailingAnchor.constraint(equalTo: adView.trailingAnchor, constant: -12),
-            ctaButton.centerYAnchor.constraint(equalTo: adView.centerYAnchor),
-            ctaButton.widthAnchor.constraint(equalToConstant: 90),
-            ctaButton.heightAnchor.constraint(equalToConstant: 32)
-        ])
-        
-        adView.adChoicesView = adChoicesView
-        adView.layoutIfNeeded()
-        adView.nativeAd = nativeAd
-        
-        return adView
-    }
     
     func showEmptyStateIfNeeded() {
         if expenses.isEmpty {

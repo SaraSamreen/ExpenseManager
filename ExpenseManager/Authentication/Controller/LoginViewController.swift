@@ -10,8 +10,11 @@ import Firebase
 import FirebaseAuth
 import GoogleSignIn
 import AuthenticationServices
+import JGProgressHUD
 
 class LoginViewController: UIViewController {
+    
+    private let hud = JGProgressHUD(style: .dark)
     
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
@@ -115,17 +118,15 @@ class LoginViewController: UIViewController {
     }
     
     // MARK: - Helpers
-    func showLoader() {
-        let spinner = UIActivityIndicatorView(style: .large)
-        spinner.tag = 999
-        spinner.center = view.center
-        spinner.startAnimating()
-        view.addSubview(spinner)
+    
+    func showLoader(text: String = "Loading") {
+        hud.textLabel.text = text
+        hud.show(in: self.view)
         view.isUserInteractionEnabled = false
     }
-
+    
     func hideLoader() {
-        view.viewWithTag(999)?.removeFromSuperview()
+        hud.dismiss()
         view.isUserInteractionEnabled = true
     }
     

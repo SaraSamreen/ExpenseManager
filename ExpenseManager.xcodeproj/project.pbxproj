@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0480B3792FE571BA00CB4819 /* JGProgressHUD in Frameworks */ = {isa = PBXBuildFile; productRef = 0480B3782FE571BA00CB4819 /* JGProgressHUD */; };
 		04A72B812FE3FAD000332877 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 04A72B802FE3FAD000332877 /* GoogleMobileAds */; };
 		04D078612FCD94AE00B19281 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078602FCD94AE00B19281 /* FirebaseAuth */; };
 		04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 04D078622FCD94AE00B19281 /* FirebaseFirestore */; };
@@ -46,6 +47,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				04A72B812FE3FAD000332877 /* GoogleMobileAds in Frameworks */,
+				0480B3792FE571BA00CB4819 /* JGProgressHUD in Frameworks */,
 				04E774402FD95AB4002F8EF9 /* IQKeyboardManagerSwift in Frameworks */,
 				04D078612FCD94AE00B19281 /* FirebaseAuth in Frameworks */,
 				04D078632FCD94AE00B19281 /* FirebaseFirestore in Frameworks */,
@@ -99,6 +101,7 @@
 				04D078692FCD994E00B19281 /* GoogleSignInSwift */,
 				04E7743F2FD95AB4002F8EF9 /* IQKeyboardManagerSwift */,
 				04A72B802FE3FAD000332877 /* GoogleMobileAds */,
+				0480B3782FE571BA00CB4819 /* JGProgressHUD */,
 			);
 			productName = ExpenseManager;
 			productReference = 0465CECA2FBED8BD00DFBD4E /* ExpenseManager.app */;
@@ -133,6 +136,7 @@
 				04D078662FCD994E00B19281 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				04E7743E2FD95AB4002F8EF9 /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
 				04A72B7F2FE3FAD000332877 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				0480B3772FE571BA00CB4819 /* XCRemoteSwiftPackageReference "JGProgressHUD" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0465CECB2FBED8BD00DFBD4E /* Products */;
@@ -374,6 +378,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0480B3772FE571BA00CB4819 /* XCRemoteSwiftPackageReference "JGProgressHUD" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/JonasGessner/JGProgressHUD";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.0;
+			};
+		};
 		04A72B7F2FE3FAD000332877 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
@@ -409,6 +421,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0480B3782FE571BA00CB4819 /* JGProgressHUD */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0480B3772FE571BA00CB4819 /* XCRemoteSwiftPackageReference "JGProgressHUD" */;
+			productName = JGProgressHUD;
+		};
 		04A72B802FE3FAD000332877 /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 04A72B7F2FE3FAD000332877 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;

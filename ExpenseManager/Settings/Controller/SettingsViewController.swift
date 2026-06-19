@@ -30,9 +30,19 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var downloadIconBack: UIView!
     @IBOutlet weak var downloadentrieslbl: UILabel!
 
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        navigationController?.setNavigationBarHidden(false, animated: false)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: UIImage(systemName: "chevron.left"),
+            style: .plain,
+            target: self,
+            action: #selector(goBack)
+        )
+        navigationItem.leftBarButtonItem?.tintColor = .systemBlue
 
         let savedCurrency = UserDefaults.standard.string(forKey: "selectedCurrency") ?? "PKR"
         currencyValueLabel.text = savedCurrency
@@ -48,6 +58,10 @@ class SettingsViewController: UIViewController {
 
         setupUI()
         loadRewardedAd()
+    }
+    
+    @objc func goBack() {
+        navigationController?.popViewController(animated: true)
     }
 
     // MARK: - Ad loading

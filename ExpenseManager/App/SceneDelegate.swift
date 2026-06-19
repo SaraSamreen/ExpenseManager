@@ -44,4 +44,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let url = URLContexts.first?.url else { return }
         GIDSignIn.sharedInstance.handle(url)
     }
+    
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8.0) {
+            AppOpenAdManager.shared.showAdIfAvailable()
+        }
+    }
 }

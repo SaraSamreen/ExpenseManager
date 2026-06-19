@@ -15,6 +15,7 @@ class DashboardViewController: UIViewController {
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var overviewLabel: UILabel!
     
     let cards = ["Total Income", "Total Expense"]
     var expenses: [Expense] = []
@@ -29,13 +30,7 @@ class DashboardViewController: UIViewController {
         tableView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
         collectionView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "gearshape.fill"),
-            style: .plain,
-            target: self,
-            action: #selector(openSettings)
-        )
-        navigationItem.rightBarButtonItem?.tintColor = .systemBlue
+       
         
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.minimumInteritemSpacing = 20
@@ -53,6 +48,7 @@ class DashboardViewController: UIViewController {
         tableView.dataSource = self
         tableView.allowsSelection = false
         
+        setupGearButton()
         setupBannerAd()
     }
     
@@ -67,14 +63,33 @@ class DashboardViewController: UIViewController {
         NSLayoutConstraint.activate([
             bannerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bannerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bannerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            bannerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         ])
+        
+        overviewLabel.topAnchor.constraint(equalTo: bannerView.bottomAnchor, constant: 16).isActive = true
         
         bannerView.load(Request())
     }
     
+    func setupGearButton() {
+        let gearButton = UIButton(type: .system)
+        gearButton.setImage(UIImage(systemName: "gearshape.fill"), for: .normal)
+        gearButton.tintColor = .systemBlue
+        gearButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
+        gearButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(gearButton)
+        
+        NSLayoutConstraint.activate([
+            gearButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            gearButton.centerYAnchor.constraint(equalTo: overviewLabel.centerYAnchor),
+            gearButton.widthAnchor.constraint(equalToConstant: 36),
+            gearButton.heightAnchor.constraint(equalToConstant: 36)
+        ])
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.setNavigationBarHidden(true, animated: animated)
         loadData()
     }
     
