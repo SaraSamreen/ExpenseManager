@@ -50,7 +50,6 @@ class DashboardViewController: UIViewController {
         setupGearButton()
         setupBannerAd()
 
-     //   AppOpenAdManager.shared.showAdGateIndicator()
     }
     
     func setupBannerAd() {

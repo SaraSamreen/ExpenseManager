@@ -32,17 +32,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.isEnabled = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
 
-//        NotificationCenter.default.addObserver(
-//            forName: UIApplication.didBecomeActiveNotification,
-//            object: nil,
-//            queue: .main
-//        ) { _ in
-//            Task { @MainActor in
-//                guard UserDefaults.standard.bool(forKey: "hasSeenOnboarding") else { return }
-//                AppOpenAdManager.shared.showAdGateIndicator()
-//            }
-//        }
-
         return true
     }
 
