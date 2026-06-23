@@ -12,25 +12,36 @@ import Firebase
 import GoogleSignIn
 import IQKeyboardManagerSwift
 
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         FirebaseApp.configure()
         CoreDataManager.shared.setupDefaultCategories()
         CurrencyManager.shared.fetchExchangeRates { }
         
         guard let clientID = FirebaseApp.app()?.options.clientID else { return true }
-                let config = GIDConfiguration(clientID: clientID)
-                GIDSignIn.sharedInstance.configuration = config
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
         
         MobileAds.shared.start(completionHandler: { _ in })
-        
-        AppOpenAdManager.shared.loadAd()
-        
+
         IQKeyboardManager.shared.isEnabled = true
-        IQKeyboardManager.shared.enableAutoToolbar = true
         IQKeyboardManager.shared.resignOnTouchOutside = true
+
+//        NotificationCenter.default.addObserver(
+//            forName: UIApplication.didBecomeActiveNotification,
+//            object: nil,
+//            queue: .main
+//        ) { _ in
+//            Task { @MainActor in
+//                guard UserDefaults.standard.bool(forKey: "hasSeenOnboarding") else { return }
+//                AppOpenAdManager.shared.showAdGateIndicator()
+//            }
+//        }
 
         return true
     }

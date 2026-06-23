@@ -12,6 +12,7 @@ import FirebaseAuth
 class DashboardViewController: UIViewController {
     
     var bannerView: BannerView!
+
     
     @IBOutlet weak var collectionView: UICollectionView!
     @IBOutlet weak var tableView: UITableView!
@@ -29,8 +30,6 @@ class DashboardViewController: UIViewController {
         view.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
         tableView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
         collectionView.backgroundColor = UIColor(red: 0.94, green: 0.95, blue: 0.98, alpha: 1)
-        
-       
         
         if let layout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
             layout.minimumInteritemSpacing = 20
@@ -50,6 +49,8 @@ class DashboardViewController: UIViewController {
         
         setupGearButton()
         setupBannerAd()
+
+     //   AppOpenAdManager.shared.showAdGateIndicator()
     }
     
     func setupBannerAd() {

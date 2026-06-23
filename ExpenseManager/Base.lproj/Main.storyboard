@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="av8-kc-qB2">
     <device id="retina6_3" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
@@ -10,6 +10,42 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
+        <!--View Controller-->
+        <scene sceneID="ktE-NU-Gto">
+            <objects>
+                <viewController storyboardIdentifier="SplashViewController" id="av8-kc-qB2" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="sTK-MH-d6y">
+                        <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="HQk-g4-vhC">
+                                <rect key="frame" x="151" y="387" width="100" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="100" id="bpY-o2-Vtw"/>
+                                    <constraint firstAttribute="width" constant="100" id="gFz-rP-r3l"/>
+                                </constraints>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Track. Save. Grow." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6ZI-T8-McC">
+                                <rect key="frame" x="125.66666666666669" y="499" width="151" height="21"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="BGr-pb-e7q"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="6ZI-T8-McC" firstAttribute="top" secondItem="HQk-g4-vhC" secondAttribute="bottom" constant="12" id="N4q-Wg-ARc"/>
+                            <constraint firstItem="6ZI-T8-McC" firstAttribute="centerX" secondItem="sTK-MH-d6y" secondAttribute="centerX" id="TP1-aI-9Sa"/>
+                            <constraint firstItem="HQk-g4-vhC" firstAttribute="centerX" secondItem="sTK-MH-d6y" secondAttribute="centerX" id="XgS-Kz-fYY"/>
+                            <constraint firstItem="HQk-g4-vhC" firstAttribute="centerY" secondItem="sTK-MH-d6y" secondAttribute="centerY" id="yYN-RU-JDT"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="SIB-Un-ojN" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-982" y="137"/>
+        </scene>
         <!--Onboarding View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
@@ -1842,6 +1878,7 @@
         <image name="house.fill" catalog="system" width="128" height="104"/>
         <image name="icloud.and.arrow.up" catalog="system" width="128" height="117"/>
         <image name="list.bullet" catalog="system" width="128" height="87"/>
+        <image name="logo" width="512" height="512"/>
         <image name="person.crop.circle.fill" catalog="system" width="128" height="123"/>
         <image name="plus.circle.fill" catalog="system" width="128" height="123"/>
         <image name="settings" width="25" height="25"/>
