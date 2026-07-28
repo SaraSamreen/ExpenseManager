@@ -40,6 +40,6 @@ A full-featured personal finance app for tracking income, expenses, savings goal
 
 ## Screenshots
 
-<img src="Splash.png" width="150"> <img src="Dashboard.png" width="150"> <img src="Add%20Entry.png" width="150"> <img src="Analytics.png" width="150">
+<img src="screenshots/Splash.png" width="150"> <img src="screenshots/Dashboard.png" width="150"> <img src="screenshots/Add%20Entry.png" width="150"> <img src="screenshots/Analytics.png" width="150">
 
-<img src="Goals.png" width="150"> <img src="Add%20Goal.png" width="150"> <img src="Entries.png" width="150"> <img src="Settings.png" width="150">
+<img src="screenshots/Goals.png" width="150"> <img src="screenshots/Add%20Goal.png" width="150"> <img src="screenshots/Entries.png" width="150"> <img src="screenshots/Settings.png" width="150">
