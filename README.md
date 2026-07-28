@@ -37,3 +37,9 @@ A full-featured personal finance app for tracking income, expenses, savings goal
 ```
 2. Open `ExpenseManager.xcodeproj` in Xcode
 3. Build and run on simulator or device
+
+## Screenshots
+
+<img src="Splash.png" width="150"> <img src="Dashboard.png" width="150"> <img src="Add%20Entry.png" width="150"> <img src="Analytics.png" width="150">
+
+<img src="Goals.png" width="150"> <img src="Add%20Goal.png" width="150"> <img src="Entries.png" width="150"> <img src="Settings.png" width="150">
